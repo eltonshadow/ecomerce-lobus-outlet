@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { createCustomerSession, destroyCustomerSession, getCustomer } from "@/lib/auth";
 import { hashPassword, verifyPassword } from "@/lib/password";
 import { isValidCpf } from "@/lib/cpf";
+import { safeNext } from "@/lib/safe-next";
 
 export type AccountState = { error?: string; values?: Record<string, string> } | undefined;
 
@@ -13,10 +14,6 @@ const DUMMY_HASH = hashPassword("dummy-password-for-timing");
 const str = (fd: FormData, k: string) => String(fd.get(k) ?? "").trim();
 const digits = (s: string) => s.replace(/\D/g, "");
 
-// Só caminho interno: evita open redirect via ?next=https://...
-function safeNext(raw: string) {
-  return raw.startsWith("/") && !raw.startsWith("//") ? raw : "/conta";
-}
 
 export async function registerCustomerAction(_: AccountState, fd: FormData): Promise<AccountState> {
   const name = str(fd, "name");

@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { getCustomer } from "@/lib/auth";
+import { safeNext } from "@/lib/safe-next";
 import { SiteHeader } from "@/components/SiteHeader";
 import { ui } from "@/design/ui";
 import { RegisterForm } from "../AuthForms";
@@ -29,7 +30,7 @@ export default function CadastroPage({ searchParams }: Props) {
 
 async function Gate({ searchParams }: Props) {
   const { next } = await searchParams;
-  const target = next?.startsWith("/") && !next.startsWith("//") ? next : "/conta";
+  const target = safeNext(next);
   if (await getCustomer()) redirect(target);
   return <RegisterForm next={target} />;
 }

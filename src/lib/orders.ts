@@ -116,11 +116,17 @@ export async function createOrder(input: CreateOrderInput, customerId: string | 
   }
 
   return prisma.$transaction(async (tx) => {
+    // Trava por cliente durante a transação: dois checkouts simultâneos não furam o limite.
+    for (const key of [customerId ?? "", `cpf:${cpf}`, `tel:${phone}`].filter(Boolean).sort()) {
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${key}))`;
+    }
+    // Logado: conta só os pedidos da própria conta (outra pessoa digitando o CPF dele não o bloqueia).
+    // Convidado: conta pedidos de convidado com o mesmo telefone ou CPF.
     const pending = await tx.order.count({
       where: {
         status: "PENDING",
         pixExpiresAt: { gt: new Date() },
-        OR: [{ customerPhone: phone }, { customerCpf: cpf }, ...(customerId ? [{ customerId }] : [])],
+        ...(customerId ? { customerId } : { customerId: null, OR: [{ customerPhone: phone }, { customerCpf: cpf }] }),
       },
     });
     if (pending >= MAX_PENDING_PER_CUSTOMER) {

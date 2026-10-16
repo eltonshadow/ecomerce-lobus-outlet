@@ -14,3 +14,12 @@ assert.equal(verifyPassword("segredo-123", h), true);
 assert.equal(verifyPassword("errado", h), false);
 
 console.log("selfcheck ok");
+
+import { safeNext } from "../src/lib/safe-next";
+assert.equal(safeNext("/conta"), "/conta");
+assert.equal(safeNext("/pedido/LOB-1?x=1"), "/pedido/LOB-1?x=1");
+assert.equal(safeNext("//evil.com"), "/conta");
+assert.equal(safeNext("/\\evil.com"), "/conta");
+assert.equal(safeNext("https://evil.com"), "/conta");
+assert.equal(safeNext("/%0a//evil.com").startsWith("/"), true);
+console.log("safeNext ok");
