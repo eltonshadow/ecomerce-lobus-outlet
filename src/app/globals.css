@@ -18,6 +18,11 @@
 body {
   margin: 0;
   padding: 0;
-  background-color: #131313;
-  color: #e5e2e1;
+  background-color: #0B0B0A;
+  color: #F3EFE6;
+}
+
+/* Faixa de texto corrido da home (design system: "band"). */
+@keyframes lobus-band {
+  to { transform: translateX(-50%); }
 }

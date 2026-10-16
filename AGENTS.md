@@ -1,3 +1,7 @@
+## Design system
+
+Toda tela nova ou alterada segue `docs/DESIGN-SYSTEM.md`: tokens em `src/design/tokens.ts`, receitas de classe em `src/design/ui.ts`, produto sempre com `src/components/ProductTag.tsx`. Não declare cor, fonte ou tamanho fora desses arquivos.
+
 <!-- BEGIN:nextjs-agent-rules -->
 
 ## This is NOT the Next.js you know

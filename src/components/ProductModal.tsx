@@ -17,8 +17,10 @@ export function ProductModal() {
   const product = activeProductModal;
   const availableVariants = product.variants.filter((v) => v.stockQuantity > 0);
 
-  // Define tamanho padrão se ainda não selecionou
-  const currentSize = selectedSize || (availableVariants[0]?.size ?? "");
+  // O modal é único na página: um tamanho escolhido em outro produto pode não existir neste.
+  const currentSize = availableVariants.some((v) => v.size === selectedSize)
+    ? selectedSize
+    : (availableVariants[0]?.size ?? "");
   const selectedVariant = product.variants.find((v) => v.size === currentSize);
 
   const discountPercent = product.originalPrice
@@ -27,14 +29,19 @@ export function ProductModal() {
       )
     : null;
 
-  const handleAddToCart = () => {
-    if (!currentSize) return;
-    addToCart(product, currentSize);
+  const close = () => {
+    setSelectedImageIndex(0);
     setActiveProductModal(null);
   };
 
+  const handleAddToCart = () => {
+    if (!currentSize) return;
+    addToCart(product, currentSize);
+    close();
+  };
+
   const whatsappMessage = encodeURIComponent(
-    `Olá! Tenho uma dúvida sobre a peça "${product.name}" (Tamanho ${currentSize || "M"}) da Lobos G Outlet.`
+    `Olá! Tenho uma dúvida sobre a peça "${product.name}" (Tamanho ${currentSize || "M"}) da LOBUS Outlet.`
   );
 
   return (
@@ -42,7 +49,7 @@ export function ProductModal() {
       <div className="relative w-full max-w-2xl bg-zinc-900 border border-zinc-800 rounded-t-2xl sm:rounded-2xl max-h-[92vh] flex flex-col overflow-hidden text-white shadow-2xl">
         {/* Botão Fechar */}
         <button
-          onClick={() => setActiveProductModal(null)}
+          onClick={close}
           className="absolute top-3 right-3 z-20 p-2 bg-black/60 hover:bg-black text-white rounded-full transition"
           aria-label="Fechar"
         >
@@ -52,9 +59,9 @@ export function ProductModal() {
         <div className="overflow-y-auto p-4 sm:p-6 flex flex-col sm:grid sm:grid-cols-2 gap-5">
           {/* Coluna 1: Galeria de Imagens */}
           <div className="flex flex-col gap-3">
-            <div className="relative aspect-4/5 w-full bg-zinc-950 rounded-xl overflow-hidden">
+            <div className="relative aspect-[4/5] w-full bg-zinc-950 rounded-xl overflow-hidden">
               <Image
-                src={product.images[selectedImageIndex] || product.images[0]}
+                src={product.images[selectedImageIndex] ?? product.images[0]}
                 alt={product.name}
                 fill
                 priority
@@ -109,7 +116,7 @@ export function ProductModal() {
                 )}
               </div>
               <p className="text-xs text-emerald-400 font-medium">
-                Pague via Pix Dinâmico ou em até 3x sem juros
+                Pagamento via Pix
               </p>
 
               {/* Descrição */}

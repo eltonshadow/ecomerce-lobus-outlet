@@ -29,6 +29,9 @@ interface CartContextType {
   };
 }
 
+// v2: carrinhos antigos guardavam ids de produtos mock, que não existem no banco.
+const CART_KEY = "lobus_cart_v2";
+
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
@@ -41,7 +44,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   // Carregar do localStorage se disponível no browser
   useEffect(() => {
     try {
-      const saved = localStorage.getItem("lobos_cart");
+      const saved = localStorage.getItem(CART_KEY);
       if (saved) {
         setItems(JSON.parse(saved));
       }
@@ -53,7 +56,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   // Salvar no localStorage
   useEffect(() => {
     try {
-      localStorage.setItem("lobos_cart", JSON.stringify(items));
+      localStorage.setItem(CART_KEY, JSON.stringify(items));
     } catch {
       // ignore
     }
@@ -61,14 +64,15 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const addToCart = (product: Product, size: string, quantity = 1) => {
     const variant = product.variants.find((v) => v.size === size);
-    const variantId = variant ? variant.id : `${product.id}-${size}`;
+    if (!variant || variant.stockQuantity < 1) return;
+    const variantId = variant.id;
 
     setItems((prev) => {
       const existing = prev.find((item) => item.variantId === variantId);
       if (existing) {
         return prev.map((item) =>
           item.variantId === variantId
-            ? { ...item, quantity: item.quantity + quantity }
+            ? { ...item, quantity: Math.min(item.quantity + quantity, variant.stockQuantity) }
             : item
         );
       }

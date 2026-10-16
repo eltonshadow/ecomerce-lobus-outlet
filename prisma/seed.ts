@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { hashPassword } from "../src/lib/password";
 
 const prisma = new PrismaClient();
 
@@ -68,6 +69,8 @@ async function main() {
     { name: "Conjuntos", slug: "conjuntos", displayOrder: 3 },
     { name: "Calçados", slug: "calcados", displayOrder: 4 },
     { name: "Acessórios", slug: "acessorios", displayOrder: 5 },
+    { name: "Polos", slug: "polos", displayOrder: 6 },
+    { name: "Moletons & Jaquetas", slug: "moletons-jaquetas", displayOrder: 7 },
   ];
 
   for (const cat of categories) {
@@ -88,6 +91,139 @@ async function main() {
 
   // 4. Produtos com Grade de Tamanhos
   const products = [
+    {
+      name: "Camiseta Estonada Heavyweight Black",
+      slug: "camiseta-estonada-heavyweight-black",
+      categoryId: getCatId("camisetas"),
+      description: "Camiseta heavyweight em algodão peruano fio 40.1 com lavagem estonada e gola canelada.",
+      originalPrice: 149.00,
+      price: 89.90,
+      isOutletDiscount: true,
+      featured: true,
+      images: ["https://lh3.googleusercontent.com/aida-public/AB6AXuDtGzbFeugtPvccukRy91sOUm0T6aNDWi-GbNw7-V_dI3F2qNJDNFViYAa-zF_RBGq3alM0MdYxg63jWD2495_dCFsjhpK-_NwjlPCuF9ZslLUsy_VyGoC223S_Tr2OwP8l74QWh2sH0J78YchS0b0hTZgHVAelEdqHkW0J7eVtYwV-JDruC-HH2xsZcNvu0lkfK6k4WXubHTvAP8UQlisLfYqY_hpr7uj1X0eRqwg-jzLId0uK8L9eag"],
+      variants: [
+        { sku: "LOB-CAM-EST-BLK-P", size: "P", stockQuantity: 3 },
+        { sku: "LOB-CAM-EST-BLK-M", size: "M", stockQuantity: 5 },
+        { sku: "LOB-CAM-EST-BLK-G", size: "G", stockQuantity: 4 },
+        { sku: "LOB-CAM-EST-BLK-GG", size: "GG", stockQuantity: 2 },
+      ],
+    },
+    {
+      name: "Camisa Polo Custom Fit Navy Blue",
+      slug: "camisa-polo-custom-fit-navy-blue",
+      categoryId: getCatId("polos"),
+      description: "Polo em piquet premium, modelagem custom fit e gola com acabamento contrastante.",
+      originalPrice: 199.00,
+      price: 119.90,
+      isOutletDiscount: true,
+      featured: true,
+      images: ["https://lh3.googleusercontent.com/aida-public/AB6AXuD-bThnYk2FpKU0Zd35PJbOjGu-qFotmFBXimOS3ve-JFstj5gmCT_SFE7KG_jBkDL_8l8BiJ7GOOiTUxtfJiaEAgDnGsum4ZsU6fyILS197BZhp4AzoXigwKbUyvAiLhPHjudsitILYBIWMx_pMNOrT_PaTb2RkTk87nSFnjsAt91PUvheMgaqe2-tmh5sBXAXgUTJlSTkhu2jcHgweLqc9CJWXxYl1QgXiz0CG1jiwBWVIGXKulj1dw"],
+      variants: [
+        { sku: "LOB-POL-CST-NVY-P", size: "P", stockQuantity: 2 },
+        { sku: "LOB-POL-CST-NVY-M", size: "M", stockQuantity: 4 },
+        { sku: "LOB-POL-CST-NVY-G", size: "G", stockQuantity: 4 },
+        { sku: "LOB-POL-CST-NVY-GG", size: "GG", stockQuantity: 1 },
+      ],
+    },
+    {
+      name: "Bermuda Jeans Destroyed Slim Confort",
+      slug: "bermuda-jeans-destroyed-slim-confort",
+      categoryId: getCatId("bermudas"),
+      description: "Bermuda jeans com elastano, lavagem destroyed e modelagem slim confortável.",
+      originalPrice: 229.00,
+      price: 139.90,
+      isOutletDiscount: true,
+      featured: true,
+      images: ["https://lh3.googleusercontent.com/aida-public/AB6AXuDlWmeh1kGwJgd4hwgHhu1Z_VEecmAiDoK2OYDq0qqviKkGwn4NJlSRgqbda2Fqd9xuFjWpysPxvbj6XYxRcWpgFhdP2e6lF89xeFkmRrxrU3f4cLOtAMA6zLeZwKyGGVMt27ypKy2AauhFjsZVvTT_r1Bjko2Lk3Zzk--NFE5EzbLt75jqsmhdw2yzF27JxXwOnBziV9krCNL8nwtGEPk2DoUOwl4LC0ib6hsg7SMu7DwP57c3NO8UPQ"],
+      variants: [
+        { sku: "LOB-BER-JNS-DST-38", size: "38", stockQuantity: 2 },
+        { sku: "LOB-BER-JNS-DST-40", size: "40", stockQuantity: 3 },
+        { sku: "LOB-BER-JNS-DST-42", size: "42", stockQuantity: 3 },
+        { sku: "LOB-BER-JNS-DST-44", size: "44", stockQuantity: 1 },
+      ],
+    },
+    {
+      name: "Moletom Canguru Oversized Acid Wash",
+      slug: "moletom-canguru-oversized-acid-wash",
+      categoryId: getCatId("moletons-jaquetas"),
+      description: "Moletom canguru heavyweight 3 cabos flanelado, lavagem acid wash e capuz forrado.",
+      originalPrice: 289.00,
+      price: 189.90,
+      isOutletDiscount: true,
+      featured: true,
+      images: ["https://lh3.googleusercontent.com/aida-public/AB6AXuBxAd4dDNSw0aDQOFFW6WSWAzBPT1S5zMtZnUXDLtk3f1CPcHjIoHr2CjWot_QhbSZVC_5PPM6qkwPwempaON8pp1SS44DsXBy4QxHPOKHCZFLBL3rowFc2I0Ha0t_m6RgfoKGlsP2tLOnkD5iAvlDE9rJ91YGf8zCZ9jjh0z_YvQ6LtJ2q9XJBC7YuXBIaRYA8B_Gech5kVJBgv7IH9UqEs_q3meVcgtn4dCxeWnFN9LjbpMok9K--5w"],
+      variants: [
+        { sku: "LOB-MOL-CNG-ACD-P", size: "P", stockQuantity: 1 },
+        { sku: "LOB-MOL-CNG-ACD-M", size: "M", stockQuantity: 3 },
+        { sku: "LOB-MOL-CNG-ACD-G", size: "G", stockQuantity: 3 },
+        { sku: "LOB-MOL-CNG-ACD-GG", size: "GG", stockQuantity: 2 },
+      ],
+    },
+    {
+      name: "Tênis Casual Couro Street White & Gold",
+      slug: "tenis-casual-couro-street-white-gold",
+      categoryId: getCatId("calcados"),
+      description: "Tênis casual em couro genuíno branco com detalhes dourados e solado de borracha.",
+      originalPrice: 399.00,
+      price: 259.90,
+      isOutletDiscount: true,
+      featured: true,
+      images: ["https://lh3.googleusercontent.com/aida-public/AB6AXuCprVJwPtqX4RHBt2chyIeVAGZeBV-7NXlI2zXhTstwFk15pGrJckA3mQWRnX_O8MhYXUAHi_LWd2tLuOxRR9ezBVJSG8V7HC4LoVL7RAfge6RTA4KLjNKMURsIp4IhJ0GUSLhfNQIw6fLQGh3z50QOpQ-El3WLdcGpLqu_6pQc-Wp3qbyVPdSZ5I9A4vHrbzSk6bSq60H6WzKYwYvlUsjjYbqdtElCQMvaKFyJ6R6dXgIdbVRtFOREuw"],
+      variants: [
+        { sku: "LOB-TEN-CRO-WGD-39", size: "39", stockQuantity: 1 },
+        { sku: "LOB-TEN-CRO-WGD-40", size: "40", stockQuantity: 2 },
+        { sku: "LOB-TEN-CRO-WGD-41", size: "41", stockQuantity: 2 },
+        { sku: "LOB-TEN-CRO-WGD-42", size: "42", stockQuantity: 1 },
+      ],
+    },
+    {
+      name: "Bermuda Sarja Cargo Utilitária Chumbo",
+      slug: "bermuda-sarja-cargo-utilitaria-chumbo",
+      categoryId: getCatId("bermudas"),
+      description: "Bermuda cargo em sarja premium com bolsos utilitários reforçados.",
+      originalPrice: 199.00,
+      price: 129.90,
+      isOutletDiscount: true,
+      featured: true,
+      images: ["https://lh3.googleusercontent.com/aida-public/AB6AXuBC6l4kfDAW6lqwjT_Bxwz2rFJ1lYP2AZcGncovfGy2DKEWDRwYnR58HTwnRXA0E_vJyvL1uTb-q6IaFTrisLPwm1QC7V2f4LrWwQOX_MZfK_oLKSSRuXinxDZUI4biMW_b-y87EXtqvptCEDOHVqHr9hP0tR042R-BpNJXBK8twkmvRpcOWUp5yVHf6L1oL6D_Py10TNdvqFOwAb4ve-ulGqOxt76sQZmBzU6LGH0lp40Y2QvxYgCIEA"],
+      variants: [
+        { sku: "LOB-BER-SRJ-CHB-38", size: "38", stockQuantity: 1 },
+        { sku: "LOB-BER-SRJ-CHB-40", size: "40", stockQuantity: 2 },
+        { sku: "LOB-BER-SRJ-CHB-42", size: "42", stockQuantity: 1 },
+        { sku: "LOB-BER-SRJ-CHB-44", size: "44", stockQuantity: 0 },
+      ],
+    },
+    {
+      name: "Jaqueta Windbreaker Impermeável",
+      slug: "jaqueta-windbreaker-impermeavel",
+      categoryId: getCatId("moletons-jaquetas"),
+      description: "Jaqueta corta-vento impermeável com capuz embutido e ziper frontal.",
+      originalPrice: 269.00,
+      price: 179.90,
+      isOutletDiscount: true,
+      featured: true,
+      images: ["https://lh3.googleusercontent.com/aida-public/AB6AXuAuLgSwYaTI37EXqm2IMpl9BezfPKXQOeryVqVSffUbh7ektb9WLt9Dj8aVA2122xG-TDj6eZPNUIEjtoYTmARrx7oS3jYCVL1IY4t5cfWPPQpYHhIB_dbVUepGRyLmxJD1A5StliPOC0prUjzPILKRHsBr0Xw15tzV_lUq2d5h_igkRyL6H9DeuErNhGuLlSyQe-dUKxT78TjvHyIwAq2SQPkgzrF0yPoM9sDZHDbFripCB7y9szt3Ig"],
+      variants: [
+        { sku: "LOB-JAQ-WND-BLK-P", size: "P", stockQuantity: 2 },
+        { sku: "LOB-JAQ-WND-BLK-M", size: "M", stockQuantity: 3 },
+        { sku: "LOB-JAQ-WND-BLK-G", size: "G", stockQuantity: 2 },
+        { sku: "LOB-JAQ-WND-BLK-GG", size: "GG", stockQuantity: 1 },
+      ],
+    },
+    {
+      name: "Boné Aba Curva Bordado 3D Lobus",
+      slug: "bone-aba-curva-bordado-3d-lobus",
+      categoryId: getCatId("acessorios"),
+      description: "Boné aba curva estruturado com bordado 3D frontal e fecho ajustável.",
+      originalPrice: 129.00,
+      price: 79.90,
+      isOutletDiscount: true,
+      featured: true,
+      images: ["https://lh3.googleusercontent.com/aida-public/AB6AXuDcLOrJ3MZUXnyTSFjWEddVrCQZ5owLxX_ZTshQ4sdTdDGP56mG9apTpKuX188r8Ivcg4RAgbCXUAuqnvqHCUXv9YDXfp34JS-v7bhKsUSv2qTk7KlrrBJ67D3PPFbGAWABybFeeyY_W7-40R2sxWdxNh7nEWmi3uqAaXrxKLq0P1y0QtTvTviWHJH3dHQUE7CM37B-up7l0CceBjYo9QdCulzf03vMmmSGHk4nJWsLzGcxnau2B-jOMg"],
+      variants: [
+        { sku: "LOB-BON-ABC-LOB-UN", size: "Único", stockQuantity: 10 },
+      ],
+    },
     {
       name: "Camiseta Streetwear Oversized 'Wolf Heavy' Preta",
       slug: "camiseta-streetwear-oversized-wolf-heavy-preta",
@@ -246,6 +382,21 @@ async function main() {
       active: true,
     },
   });
+
+  // 6. Admin inicial: só cria se ADMIN_EMAIL e ADMIN_PASSWORD vierem do ambiente (nunca senha no git).
+  const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
+  const adminPassword = process.env.ADMIN_PASSWORD;
+  if (adminEmail && adminPassword) {
+    const exists = await prisma.adminUser.findUnique({ where: { email: adminEmail } });
+    if (!exists) {
+      await prisma.adminUser.create({
+        data: { name: "Administrador", email: adminEmail, passwordHash: hashPassword(adminPassword), role: "ADMIN" },
+      });
+      console.log(`✓ Admin criado: ${adminEmail}`);
+    }
+  } else {
+    console.log("⚠ ADMIN_EMAIL/ADMIN_PASSWORD não definidos: nenhum admin criado.");
+  }
 
   console.log("✅ Seed completo finalizado com sucesso!");
 }

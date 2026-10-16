@@ -1,7 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { createOrderAction, quoteCheckoutAction } from "@/actions/store";
 import { useCart } from "@/context/CartContext";
 import { X, Trash2, Plus, Minus, ShoppingBag, ArrowRight, Truck, MapPin, CheckCircle2 } from "lucide-react";
 import { PICKUP_STORE_INFO, LOCAL_DELIVERY_ZONES } from "@/data/delivery-zones";
@@ -11,6 +13,7 @@ export function CartDrawer() {
     items,
     removeFromCart,
     updateQuantity,
+    clearCart,
     totalItems,
     subtotal,
     deliveryType,
@@ -24,46 +27,69 @@ export function CartDrawer() {
     freeShippingProgress,
   } = useCart();
 
+  const router = useRouter();
   const [isCheckingOut, setIsCheckingOut] = useState(false);
-  const [customerName, setCustomerName] = useState("");
-  const [customerPhone, setCustomerPhone] = useState("");
-  const [shippingAddress, setShippingAddress] = useState("");
+  const [form, setForm] = useState({ name: "", phone: "", email: "", cpf: "", cep: "", street: "", number: "", neighborhood: "", complement: "", notes: "" });
+  const [couponInput, setCouponInput] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState("");
+  type Quote = { subtotal: number; deliveryFee: number; deliveryZoneName: string | null; discountValue: number; total: number };
+  const [submitError, setSubmitError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  const cartItems = items.map((it) => ({ variantId: it.variantId, quantity: it.quantity }));
+  const cartKey = JSON.stringify(cartItems);
+  const cepDigits = form.cep.replace(/\D/g, "");
+
+  // Total oficial sempre vem do servidor (preço, frete por CEP e cupom).
+  // A resposta guarda a chave do pedido de cálculo: resposta de um estado antigo é ignorada.
+  const needsCep = deliveryType === "MOTOBOY" && cepDigits.length !== 8;
+  const quoteKey = JSON.stringify([cartKey, deliveryType, cepDigits, appliedCoupon]);
+  const [quoteResult, setQuoteResult] = useState<{ key: string; quote: Quote | null; error: string } | null>(null);
+  useEffect(() => {
+    if (!isCheckingOut || items.length === 0 || needsCep) return;
+    let cancelled = false;
+    quoteCheckoutAction({ items: JSON.parse(cartKey), deliveryMethod: deliveryType, cep: cepDigits, couponCode: appliedCoupon || undefined }).then((r) => {
+      if (!cancelled) setQuoteResult({ key: quoteKey, quote: r.success ? r.quote : null, error: r.success ? "" : r.error });
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [isCheckingOut, needsCep, quoteKey, deliveryType, cepDigits, appliedCoupon, cartKey, items.length]);
+  const current = !needsCep && quoteResult?.key === quoteKey ? quoteResult : null;
+  const quote = current?.quote ?? null;
+  const quoteError = needsCep ? "Informe o CEP para calcular a entrega." : (current?.error ?? "");
 
   if (!isCartOpen) return null;
 
-  const handleCheckoutSubmit = (e: React.FormEvent) => {
+  const field = (key: keyof typeof form) => ({
+    value: form[key],
+    onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setForm((f) => ({ ...f, [key]: e.target.value })),
+  });
+
+  const inputClass = "w-full bg-zinc-950 border border-zinc-800 rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-amber-400";
+  const labelClass = "text-xs font-bold text-zinc-300 block mb-1";
+
+  const handleCheckoutSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!customerName || !customerPhone) {
-      alert("Por favor, preencha seu nome e WhatsApp.");
+    setSubmitting(true);
+    setSubmitError("");
+    const r = await createOrderAction({
+      items: cartItems,
+      deliveryMethod: deliveryType,
+      cep: cepDigits,
+      couponCode: appliedCoupon || undefined,
+      customer: { name: form.name, phone: form.phone, email: form.email, cpf: form.cpf },
+      shipping: deliveryType === "MOTOBOY" ? { street: form.street, number: form.number, neighborhood: form.neighborhood, complement: form.complement, notes: form.notes } : undefined,
+    });
+    setSubmitting(false);
+    if (!r.success) {
+      setSubmitError(r.error);
       return;
     }
-
-    const deliveryDescription =
-      deliveryType === "PICKUP"
-        ? `*Retirada no Balcão:* Loja Física no Jardim Novo Mundo (Grátis)`
-        : `*Entrega via Motoboy:* ${shippingAddress} (Taxa: R$ ${deliveryFee.toFixed(2).replace(".", ",")})`;
-
-    const itemsSummary = items
-      .map(
-        (it) =>
-          `• ${it.quantity}x ${it.product.name} (Tam: ${it.selectedSize}) - R$ ${(
-            it.unitPrice * it.quantity
-          ).toFixed(2).replace(".", ",")}`
-      )
-      .join("\n");
-
-    const message = encodeURIComponent(
-      `🐺 *NOVO PEDIDO - LOBOS G OUTLET*\n\n` +
-      `*Cliente:* ${customerName}\n` +
-      `*WhatsApp:* ${customerPhone}\n\n` +
-      `*ITENS DO PEDIDO:*\n${itemsSummary}\n\n` +
-      `*Subtotal:* R$ ${subtotal.toFixed(2).replace(".", ",")}\n` +
-      `${deliveryDescription}\n` +
-      `*TOTAL:* R$ ${grandTotal.toFixed(2).replace(".", ",")}\n\n` +
-      `Gostaria de confirmar o pagamento via Pix Dinâmico e combinar o envio!`
-    );
-
-    window.open(`https://wa.me/${PICKUP_STORE_INFO.whatsapp}?text=${message}`, "_blank");
+    clearCart();
+    setIsCheckingOut(false);
+    setIsCartOpen(false);
+    router.push(`/pedido/${r.orderNumber}`);
   };
 
   return (
@@ -255,62 +281,105 @@ export function CartDrawer() {
               </div>
             </>
           ) : (
-            /* Formulário Rápido de Finalização */
+            /* Finalização: dados do cliente + total calculado no servidor */
             <form onSubmit={handleCheckoutSubmit} className="space-y-3 pt-1">
-              <div className="bg-zinc-950 p-3 rounded-xl border border-zinc-800 text-xs">
-                <span className="font-bold text-amber-400 block mb-1">
-                  Resumo Rápido para Pagamento
-                </span>
-                <p className="text-zinc-300">
-                  Total com {deliveryType === "PICKUP" ? "Retirada" : "Motoboy"}:{" "}
-                  <strong className="text-white text-sm">
-                    R$ {grandTotal.toFixed(2).replace(".", ",")}
-                  </strong>
-                </p>
+              <div>
+                <label htmlFor="ck-name" className={labelClass}>Nome completo</label>
+                <input id="ck-name" type="text" required autoComplete="name" placeholder="Ex: Carlos Oliveira" className={inputClass} {...field("name")} />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label htmlFor="ck-phone" className={labelClass}>WhatsApp (com DDD)</label>
+                  <input id="ck-phone" type="tel" required autoComplete="tel" inputMode="tel" placeholder="(62) 99999-9999" className={inputClass} {...field("phone")} />
+                </div>
+                <div>
+                  <label htmlFor="ck-cpf" className={labelClass}>CPF</label>
+                  <input id="ck-cpf" type="text" required inputMode="numeric" placeholder="000.000.000-00" className={inputClass} {...field("cpf")} />
+                </div>
+              </div>
+              <div>
+                <label htmlFor="ck-email" className={labelClass}>E-mail</label>
+                <input id="ck-email" type="email" required autoComplete="email" placeholder="voce@email.com" className={inputClass} {...field("email")} />
               </div>
 
-              <div>
-                <label className="text-xs font-bold text-zinc-300 block mb-1">
-                  Seu Nome Completo:
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Ex: Carlos Oliveira"
-                  value={customerName}
-                  onChange={(e) => setCustomerName(e.target.value)}
-                  className="w-full bg-zinc-950 border border-zinc-800 rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-amber-400"
-                />
-              </div>
-
-              <div>
-                <label className="text-xs font-bold text-zinc-300 block mb-1">
-                  Seu WhatsApp (com DDD):
-                </label>
-                <input
-                  type="tel"
-                  required
-                  placeholder="Ex: (62) 99999-9999"
-                  value={customerPhone}
-                  onChange={(e) => setCustomerPhone(e.target.value)}
-                  className="w-full bg-zinc-950 border border-zinc-800 rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-amber-400"
-                />
+              <div className="bg-zinc-950 p-3 rounded-xl border border-zinc-800 text-xs text-zinc-300">
+                {deliveryType === "PICKUP" ? (
+                  <p><strong className="text-white">Retirada na loja:</strong> {PICKUP_STORE_INFO.address}</p>
+                ) : (
+                  <p><strong className="text-white">Entrega por motoboy.</strong> A taxa é calculada pelo CEP.</p>
+                )}
+                <button type="button" onClick={() => setIsCheckingOut(false)} className="mt-1 text-amber-400 hover:text-amber-300 font-semibold">
+                  Trocar forma de entrega
+                </button>
               </div>
 
               {deliveryType === "MOTOBOY" && (
-                <div>
-                  <label className="text-xs font-bold text-zinc-300 block mb-1">
-                    Endereço de Entrega (Rua, Número, Bairro):
-                  </label>
-                  <textarea
-                    required
-                    rows={2}
-                    placeholder="Ex: Rua 10, nº 120, Setor Bueno, Apto 402"
-                    value={shippingAddress}
-                    onChange={(e) => setShippingAddress(e.target.value)}
-                    className="w-full bg-zinc-950 border border-zinc-800 rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-amber-400"
-                  />
+                <>
+                  <div className="grid grid-cols-3 gap-2">
+                    <div>
+                      <label htmlFor="ck-cep" className={labelClass}>CEP</label>
+                      <input id="ck-cep" type="text" required inputMode="numeric" autoComplete="postal-code" placeholder="74000-000" className={inputClass} {...field("cep")} />
+                    </div>
+                    <div className="col-span-2">
+                      <label htmlFor="ck-neigh" className={labelClass}>Bairro</label>
+                      <input id="ck-neigh" type="text" required className={inputClass} {...field("neighborhood")} />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2">
+                    <div className="col-span-2">
+                      <label htmlFor="ck-street" className={labelClass}>Rua</label>
+                      <input id="ck-street" type="text" required autoComplete="address-line1" className={inputClass} {...field("street")} />
+                    </div>
+                    <div>
+                      <label htmlFor="ck-number" className={labelClass}>Número</label>
+                      <input id="ck-number" type="text" required className={inputClass} {...field("number")} />
+                    </div>
+                  </div>
+                  <div>
+                    <label htmlFor="ck-comp" className={labelClass}>Complemento (opcional)</label>
+                    <input id="ck-comp" type="text" className={inputClass} {...field("complement")} />
+                  </div>
+                  <div>
+                    <label htmlFor="ck-notes" className={labelClass}>Ponto de referência (opcional)</label>
+                    <textarea id="ck-notes" rows={2} className={inputClass} {...field("notes")} />
+                  </div>
+                </>
+              )}
+
+              <div>
+                <label htmlFor="ck-coupon" className={labelClass}>Cupom de desconto</label>
+                <div className="flex gap-2">
+                  <input id="ck-coupon" type="text" placeholder="Ex: LOBOS10" value={couponInput} onChange={(e) => setCouponInput(e.target.value.toUpperCase())} className={inputClass} />
+                  {appliedCoupon ? (
+                    <button type="button" onClick={() => { setAppliedCoupon(""); setCouponInput(""); }} className="px-3 bg-zinc-800 text-zinc-300 text-xs font-bold rounded-lg hover:bg-zinc-700">Remover</button>
+                  ) : (
+                    <button type="button" onClick={() => setAppliedCoupon(couponInput.trim())} disabled={!couponInput.trim()} className="px-3 bg-zinc-800 text-amber-400 text-xs font-bold rounded-lg hover:bg-zinc-700 disabled:opacity-50">Aplicar</button>
+                  )}
                 </div>
+              </div>
+
+              <div className="bg-zinc-950 p-3 rounded-xl border border-zinc-800 text-xs space-y-1.5" aria-live="polite">
+                {quote ? (
+                  <>
+                    <div className="flex justify-between text-zinc-400"><span>Subtotal</span><span>R$ {quote.subtotal.toFixed(2).replace(".", ",")}</span></div>
+                    {quote.discountValue > 0 && (
+                      <div className="flex justify-between text-emerald-400"><span>Desconto ({appliedCoupon})</span><span>- R$ {quote.discountValue.toFixed(2).replace(".", ",")}</span></div>
+                    )}
+                    <div className="flex justify-between text-zinc-400">
+                      <span>{deliveryType === "PICKUP" ? "Retirada na loja" : `Entrega${quote.deliveryZoneName ? ` (${quote.deliveryZoneName})` : ""}`}</span>
+                      <span>{quote.deliveryFee === 0 ? <strong className="text-emerald-400">GRÁTIS</strong> : `R$ ${quote.deliveryFee.toFixed(2).replace(".", ",")}`}</span>
+                    </div>
+                    <div className="flex justify-between text-sm font-extrabold text-white pt-1.5 border-t border-zinc-800">
+                      <span>Total no Pix</span><span className="text-amber-400">R$ {quote.total.toFixed(2).replace(".", ",")}</span>
+                    </div>
+                  </>
+                ) : (
+                  <p className="text-zinc-400">{quoteError || "Calculando total..."}</p>
+                )}
+              </div>
+
+              {submitError && (
+                <p role="alert" className="text-xs text-red-400 bg-red-950/40 border border-red-900 rounded-lg p-2.5">{submitError}</p>
               )}
 
               <div className="pt-2 flex gap-2">
@@ -323,9 +392,10 @@ export function CartDrawer() {
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-3 bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold text-xs rounded-xl transition flex items-center justify-center gap-2 shadow-lg"
+                  disabled={!quote || submitting}
+                  className="flex-1 py-3 bg-emerald-500 hover:bg-emerald-400 disabled:bg-zinc-800 disabled:text-zinc-500 text-black font-extrabold text-xs rounded-xl transition flex items-center justify-center gap-2 shadow-lg"
                 >
-                  Gerar Pedido & Pagar no Pix
+                  {submitting ? "Gerando pedido..." : "Gerar Pedido & Pagar no Pix"}
                   <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
