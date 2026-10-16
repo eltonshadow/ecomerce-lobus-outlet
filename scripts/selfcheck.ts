@@ -22,4 +22,7 @@ assert.equal(safeNext("//evil.com"), "/conta");
 assert.equal(safeNext("/\\evil.com"), "/conta");
 assert.equal(safeNext("https://evil.com"), "/conta");
 assert.equal(safeNext("/%0a//evil.com").startsWith("/"), true);
+assert.equal(safeNext("/.//evil.com"), "/conta");
+assert.equal(safeNext("/..//evil.com"), "/conta");
+assert.equal(safeNext("/a/..//evil.com"), "/conta");
 console.log("safeNext ok");
