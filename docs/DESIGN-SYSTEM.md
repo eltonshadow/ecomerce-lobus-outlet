@@ -13,6 +13,10 @@ Fontes da verdade no código:
 
 O layout raiz (`src/app/layout.tsx`) converte `tokens.ts` na config do Tailwind. Não declare cor, fonte ou tamanho fora desses arquivos.
 
+## Ícone do site
+
+Monograma "L" no traço angular da logo, dentro do anel dourado, sobre `ink`. A logo completa fica ilegível abaixo de 64px, então o ícone usa só o monograma. Arquivos: `src/app/favicon.ico` (16/32/48), `src/app/icon.png` (512), `src/app/apple-icon.png` (180). O Next gera as tags no `<head>` sozinho.
+
 ## Princípios
 
 1. **Fundo escuro, uma cor de acento.** O dourado (`gold`) aparece só em CTA, item ativo, palavra de destaque no título e preço com desconto. Se tudo é dourado, nada é.
