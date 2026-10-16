@@ -9,6 +9,7 @@ Fontes da verdade no código:
 | Cores, fontes, escala tipográfica, raios, espaçamentos | `src/design/tokens.ts` |
 | Receitas de classe (botão, título, input, pill...) | `src/design/ui.ts` |
 | Card de produto | `src/components/ProductTag.tsx` |
+| Header das telas internas (conta, pedido) | `src/components/SiteHeader.tsx` |
 
 O layout raiz (`src/app/layout.tsx`) converte `tokens.ts` na config do Tailwind. Não declare cor, fonte ou tamanho fora desses arquivos.
 
@@ -79,6 +80,10 @@ Todos em `src/design/ui.ts` (`import { ui } from "@/design/ui"`).
 | `brl(n)` | `R$ 89,90` | Todo preço |
 
 `ProductTag` recebe `product` e `onOpen` (normalmente `setActiveProductModal` do `CartContext`).
+
+`SiteHeader` vai no topo de toda tela que não é a home: logo, Loja, Entrar/Minha conta e Sacola. A sacola (`CartDrawer`) abre em qualquer tela.
+
+Status de pedido: textos em `src/lib/order-status.ts`. Na lista de pedidos, "Aguardando pagamento" é o único em bloco dourado (pede ação do cliente); em andamento usa contorno dourado; finalizados ficam em `muted`.
 
 ## Padrões de página
 

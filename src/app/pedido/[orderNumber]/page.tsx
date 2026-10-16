@@ -5,34 +5,18 @@ import { connection } from "next/server";
 import { getPublicOrder } from "@/actions/store";
 import { PICKUP_STORE_INFO } from "@/data/delivery-zones";
 import { CopyPix, RefreshStatus } from "./PixActions";
+import { ORDER_STATUS_LABEL, ORDER_STEPS, ORDER_STEPS_DELIVERY } from "@/lib/order-status";
+import { SiteHeader } from "@/components/SiteHeader";
 
 type Params = { params: Promise<{ orderNumber: string }> };
 
 const brl = (n: number) => `R$ ${n.toFixed(2).replace(".", ",")}`;
 
-const STATUS_LABEL: Record<string, string> = {
-  PENDING: "Aguardando pagamento",
-  PAID: "Pagamento aprovado",
-  PREPARING: "Em separação",
-  READY_FOR_PICKUP: "Pronto para retirada",
-  OUT_FOR_DELIVERY: "Saiu para entrega",
-  DELIVERED: "Entregue",
-  CANCELLED: "Cancelado",
-};
 
 export default function OrderPage({ params }: Params) {
   return (
-    <main className="min-h-screen bg-background text-on-surface">
-      <header className="bg-surface-container-lowest">
-        <div className="max-w-3xl mx-auto px-gutter-mobile py-space-md flex items-center justify-between">
-          <Link href="/" aria-label="LOBUS Outlet, página inicial">
-            <img src="/logo.png" alt="LOBUS Outlet" className="h-14 w-auto" />
-          </Link>
-          <Link href="/" className="font-label-sm text-label-sm uppercase tracking-wider text-primary hover:text-tertiary">
-            Voltar à loja
-          </Link>
-        </div>
-      </header>
+    <main className="flex-1 bg-background text-on-surface">
+      <SiteHeader />
       <Suspense fallback={<p className="max-w-3xl mx-auto px-gutter-mobile py-space-xl text-on-surface-variant">Carregando pedido...</p>}>
         <OrderDetails params={params} />
       </Suspense>
@@ -57,12 +41,14 @@ async function OrderDetails({ params }: Params) {
       <div>
         <span className="font-label-sm text-label-sm text-primary uppercase tracking-widest">Pedido {order.orderNumber}</span>
         <h1 className="font-headline-lg text-headline-lg-mobile lg:text-headline-lg uppercase mt-1">
-          {order.status === "PENDING" ? `${order.firstName}, falta só o Pix` : STATUS_LABEL[order.status]}
+          {order.status === "PENDING" ? `${order.firstName}, falta só o Pix` : ORDER_STATUS_LABEL[order.status]}
         </h1>
         <p className="font-body-md text-body-md text-on-surface-variant mt-1">
-          Status: <strong className="text-on-surface">{STATUS_LABEL[order.status]}</strong>
+          Status: <strong className="text-on-surface">{ORDER_STATUS_LABEL[order.status]}</strong>
         </p>
       </div>
+
+      {order.status !== "CANCELLED" && <Timeline status={order.status} delivery={order.deliveryMethod === "MOTOBOY"} />}
 
       {order.status === "PENDING" && order.pixCopyPaste && (
         <section className="bg-surface-container rounded-lg p-space-lg flex flex-col gap-space-md">
@@ -145,5 +131,22 @@ async function OrderDetails({ params }: Params) {
         Falar com a loja no WhatsApp
       </a>
     </div>
+  );
+}
+
+function Timeline({ status, delivery }: { status: string; delivery: boolean }) {
+  const steps = delivery ? ORDER_STEPS_DELIVERY : ORDER_STEPS;
+  const current = steps.indexOf(status as (typeof steps)[number]);
+  return (
+    <ol aria-label="Andamento do pedido" className="grid grid-cols-5 gap-1">
+      {steps.map((s, i) => (
+        <li key={s} aria-current={i === current ? "step" : undefined} className="flex flex-col gap-2">
+          <span className={`h-1 ${i <= current ? "bg-gold" : "bg-line"}`} />
+          <span className={`font-body text-[11px] font-semibold uppercase tracking-[0.08em] leading-tight ${i === current ? "text-gold" : i < current ? "text-paper" : "text-muted"}`}>
+            {ORDER_STATUS_LABEL[s]}
+          </span>
+        </li>
+      ))}
+    </ol>
   );
 }

@@ -1,6 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { getCustomer } from "@/lib/auth";
 import type { MeasurementsGuide, Product } from "@/types/store";
 import { buildQuote, createOrder, expireStaleOrders, CheckoutError, type CreateOrderInput, type QuoteInput } from "@/lib/orders";
 
@@ -94,7 +95,9 @@ export async function quoteCheckoutAction(input: QuoteInput) {
 
 export async function createOrderAction(input: CreateOrderInput) {
   try {
-    const order = await createOrder(input);
+    // Conta vem da sessão no servidor, nunca do cliente.
+    const customer = await getCustomer();
+    const order = await createOrder(input, customer?.id ?? null);
     return { success: true as const, orderNumber: order.orderNumber };
   } catch (e) {
     if (!(e instanceof CheckoutError)) console.error("Erro ao criar pedido:", e);

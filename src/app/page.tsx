@@ -8,6 +8,7 @@ import { getStoreProducts } from "@/actions/store";
 import type { Product } from "@/types/store";
 import { ProductTag } from "@/components/ProductTag";
 import { ui } from "@/design/ui";
+import { useMe } from "@/hooks/useMe";
 
 const HERO_IMAGE =
   "https://lh3.googleusercontent.com/aida-public/AB6AXuDZTomBBGoIEWyvG4K48gWd5UmTpjfJYmlaqL9dkvAmkb_pA1tY7llx5qOd4uhZwnkREEOV8ucYM1LN4siPI9Z9BJByx6tDli32CplosRaw5KdFuom4Djlgmn8pEYsMQZkwjvF65stjEne8zOt2khjWd9y1DvBHpCGFXxTjBPVem872CuFXnY8GCCDawYIlvxNMOIS6_4N8R1shoenGU6Wr8Lx514TlJTx_nNsCPUeO1ClQHVFsqXqo-g";
@@ -35,6 +36,7 @@ const BAND = "Outlet de grifes — Moda masculina — Goiânia — ";
 
 export default function Home() {
   const { totalItems, setIsCartOpen, setActiveProductModal } = useCart();
+  const me = useMe();
   const [activeFilter, setActiveFilter] = useState("todos");
   const [query, setQuery] = useState("");
   // null = carregando. Busca no cliente via server action: a página não toca o banco no build.
@@ -103,8 +105,8 @@ export default function Home() {
                 className="w-44 bg-transparent border-b border-line focus:border-gold py-1.5 font-body text-label-md uppercase placeholder:text-muted focus:outline-none"
               />
             </label>
-            <Link href="/pedido" className={ui.navLink}>
-              Meu pedido
+            <Link href={me ? "/conta" : "/conta/entrar"} className={`${ui.navLink} ${me === undefined ? "opacity-0" : ""}`}>
+              {me ? "Minha conta" : "Entrar"}
             </Link>
             <button type="button" onClick={() => setIsCartOpen(true)} className={ui.navLink}>
               Sacola (<span className="tabular-nums">{totalItems}</span>)

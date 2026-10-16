@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { createOrderAction, quoteCheckoutAction } from "@/actions/store";
 import { useCart } from "@/context/CartContext";
+import { useMe } from "@/hooks/useMe";
 import { X, Trash2, Plus, Minus, ShoppingBag, ArrowRight, Truck, MapPin, CheckCircle2 } from "lucide-react";
 import { PICKUP_STORE_INFO, LOCAL_DELIVERY_ZONES } from "@/data/delivery-zones";
 
@@ -30,6 +31,8 @@ export function CartDrawer() {
   const router = useRouter();
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [form, setForm] = useState({ name: "", phone: "", email: "", cpf: "", cep: "", street: "", number: "", neighborhood: "", complement: "", notes: "" });
+  // Logado: dados da conta preenchem o checkout (o vínculo do pedido à conta é feito no servidor).
+  const me = useMe((m) => setForm((f) => ({ ...f, name: f.name || m.name, phone: f.phone || m.phone, email: f.email || m.email, cpf: f.cpf || m.cpf })));
   const [couponInput, setCouponInput] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState("");
   type Quote = { subtotal: number; deliveryFee: number; deliveryZoneName: string | null; discountValue: number; total: number };
@@ -283,6 +286,19 @@ export function CartDrawer() {
           ) : (
             /* Finalização: dados do cliente + total calculado no servidor */
             <form onSubmit={handleCheckoutSubmit} className="space-y-3 pt-1">
+              {me ? (
+                <p className="text-xs text-zinc-400 border border-zinc-800 p-2.5">
+                  Comprando como <strong className="text-white">{me.email}</strong>. O pedido fica salvo em Minha conta.
+                </p>
+              ) : me === null ? (
+                <p className="text-xs text-zinc-400 border border-zinc-800 p-2.5">
+                  Tem conta?{" "}
+                  <a href="/conta/entrar?next=/" className="text-amber-400 underline">
+                    Entre
+                  </a>{" "}
+                  para preencher seus dados e acompanhar todos os pedidos. Sua sacola continua salva.
+                </p>
+              ) : null}
               <div>
                 <label htmlFor="ck-name" className={labelClass}>Nome completo</label>
                 <input id="ck-name" type="text" required autoComplete="name" placeholder="Ex: Carlos Oliveira" className={inputClass} {...field("name")} />

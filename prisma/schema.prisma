@@ -37,6 +37,22 @@ model AdminUser {
 // 2. CATÁLOGO, PRODUTOS E GRADE DE ESTOQUE
 // ------------------------------------------------------
 
+// Cliente da loja (conta opcional: checkout como convidado continua funcionando)
+model Customer {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  phone        String   // WhatsApp com DDD, só dígitos
+  cpf          String   // só dígitos, validado
+  passwordHash String
+  active       Boolean  @default(true)
+  orders       Order[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("customers")
+}
+
 model Category {
   id          String    @id @default(uuid())
   name        String
@@ -215,6 +231,8 @@ model Order {
   // Cupom
   couponId              String?
   coupon                Coupon?        @relation(fields: [couponId], references: [id])
+  customerId            String?        // preenchido quando o pedido é feito logado
+  customer              Customer?      @relation(fields: [customerId], references: [id])
   
   items                 OrderItem[]
   createdAt             DateTime       @default(now())
@@ -223,6 +241,7 @@ model Order {
   @@index([orderNumber])
   @@index([status])
   @@index([customerPhone])
+  @@index([customerId])
   @@map("orders")
 }
 

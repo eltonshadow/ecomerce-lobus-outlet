@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { SiteHeader } from "@/components/SiteHeader";
 
 // Rastreio sem conta: o cliente digita o número que recebeu ao finalizar (ex: LOB-A40E8C33).
 export default function RastrearPedido() {
@@ -16,20 +17,14 @@ export default function RastrearPedido() {
   };
 
   return (
-    <main className="min-h-screen bg-background text-on-surface">
-      <header className="bg-surface-container-lowest">
-        <div className="max-w-3xl mx-auto px-gutter-mobile py-space-md flex items-center justify-between">
-          <Link href="/">
-            <img src="/logo.png" alt="LOBUS Outlet" className="h-14 w-auto" />
-          </Link>
-          <Link href="/" className="font-label-sm text-label-sm uppercase tracking-wider text-primary hover:text-tertiary">
-            Voltar à loja
-          </Link>
-        </div>
-      </header>
+    <main className="flex-1 bg-background text-on-surface">
+      <SiteHeader />
       <section className="max-w-md mx-auto px-gutter-mobile py-space-xl flex flex-col gap-space-md">
         <h1 className="font-headline-lg text-headline-lg uppercase">Acompanhar pedido</h1>
         <p className="text-on-surface-variant">Digite o número do pedido que apareceu ao finalizar a compra.</p>
+        <p className="text-body-sm text-on-surface-variant">
+          Tem conta? <Link href="/conta" className="text-gold underline">Veja todos os seus pedidos</Link>.
+        </p>
         <form onSubmit={submit} className="flex flex-col gap-space-sm">
           <label htmlFor="order-code" className="text-sm text-on-surface-variant">Número do pedido</label>
           <input

@@ -1,6 +1,7 @@
 import { randomBytes } from "node:crypto";
 import { Prisma, type OrderStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { isValidCpf } from "@/lib/cpf";
 
 export const PIX_TTL_MS = 20 * 60 * 1000;
 
@@ -97,7 +98,11 @@ export type CreateOrderInput = QuoteInput & {
   shipping?: { street?: string; number?: string; complement?: string; neighborhood?: string; notes?: string };
 };
 
-export async function createOrder(input: CreateOrderInput) {
+// Limite de pedidos aguardando Pix por cliente: impede travar o estoque com pedidos falsos.
+// ponytail: limite por telefone/CPF/conta; limite por IP fica no proxy reverso de produção.
+export const MAX_PENDING_PER_CUSTOMER = 2;
+
+export async function createOrder(input: CreateOrderInput, customerId: string | null = null) {
   const name = input.customer.name.trim();
   const phone = onlyDigits(input.customer.phone);
   const email = input.customer.email.trim();
@@ -105,12 +110,23 @@ export async function createOrder(input: CreateOrderInput) {
   if (name.length < 3) throw new CheckoutError("Informe seu nome completo.");
   if (phone.length < 10 || phone.length > 13) throw new CheckoutError("Informe um WhatsApp válido com DDD.");
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) throw new CheckoutError("Informe um e-mail válido.");
-  if (cpf.length !== 11) throw new CheckoutError("Informe um CPF válido.");
+  if (!isValidCpf(cpf)) throw new CheckoutError("Informe um CPF válido.");
   if (input.deliveryMethod === "MOTOBOY" && (!input.shipping?.street?.trim() || !input.shipping?.number?.trim() || !input.shipping?.neighborhood?.trim())) {
     throw new CheckoutError("Preencha rua, número e bairro para a entrega.");
   }
 
   return prisma.$transaction(async (tx) => {
+    const pending = await tx.order.count({
+      where: {
+        status: "PENDING",
+        pixExpiresAt: { gt: new Date() },
+        OR: [{ customerPhone: phone }, { customerCpf: cpf }, ...(customerId ? [{ customerId }] : [])],
+      },
+    });
+    if (pending >= MAX_PENDING_PER_CUSTOMER) {
+      throw new CheckoutError("Você já tem pedidos aguardando pagamento. Pague ou aguarde o Pix vencer antes de fazer outro.");
+    }
+
     const q = await buildQuote(input, tx);
     const orderNumber = newOrderNumber();
 
@@ -124,7 +140,13 @@ export async function createOrder(input: CreateOrderInput) {
     }
 
     if (q.couponId) {
-      await tx.coupon.update({ where: { id: q.couponId }, data: { usedCount: { increment: 1 } } });
+      // Incremento condicional e atômico: dois checkouts simultâneos não passam do maxUses.
+      const used = await tx.$executeRaw`
+        UPDATE coupons SET "usedCount" = "usedCount" + 1, "updatedAt" = now()
+        WHERE id = ${q.couponId} AND active
+          AND ("maxUses" IS NULL OR "usedCount" < "maxUses")
+          AND ("validUntil" IS NULL OR "validUntil" > now())`;
+      if (used === 0) throw new CheckoutError("Cupom esgotado ou expirado.");
     }
 
     return tx.order.create({
@@ -147,6 +169,7 @@ export async function createOrder(input: CreateOrderInput) {
         discountValue: q.discountValue,
         total: q.total,
         couponId: q.couponId,
+        customerId,
         paymentMethod: "PIX",
         pixCopyPaste: fakePixCopyPaste(orderNumber, q.total),
         pixExpiresAt: new Date(Date.now() + PIX_TTL_MS),
