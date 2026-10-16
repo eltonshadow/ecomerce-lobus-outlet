@@ -1,0 +1,5 @@
+# As ferramentas do gate de estilo são instaladas em versões exatas para
+# comparar a branch base e a alteração com as mesmas regras.
+rules:
+  adhoc-packages:
+    disable: true
