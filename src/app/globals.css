@@ -1,42 +1,4 @@
-@import "tailwindcss";
-
-@theme {
-  --color-primary: #f2ca50;
-  --color-primary-container: #d4af37;
-  --color-on-primary: #3c2f00;
-  --color-on-primary-container: #554300;
-  --color-background: #131313;
-  --color-surface: #131313;
-  --color-surface-dim: #131313;
-  --color-surface-bright: #3a3939;
-  --color-surface-container: #201f1f;
-  --color-surface-container-low: #1c1b1b;
-  --color-surface-container-high: #2a2a2a;
-  --color-surface-container-lowest: #0e0e0e;
-  --color-surface-container-highest: #353534;
-  --color-on-background: #e5e2e1;
-  --color-on-surface: #e5e2e1;
-  --color-on-surface-variant: #d0c5af;
-  --color-outline: #99907c;
-  --color-outline-variant: #4d4635;
-  --color-tertiary: #e9cd67;
-  --color-tertiary-container: #ccb14f;
-  --color-secondary: #e9c176;
-  --color-secondary-container: #604403;
-  --color-error: #ffb4ab;
-  --color-error-container: #93000a;
-
-  --spacing-gutter-mobile: 1rem;
-  --spacing-space-xs: 0.25rem;
-  --spacing-space-sm: 0.5rem;
-  --spacing-space-md: 1rem;
-  --spacing-space-lg: 1.5rem;
-  --spacing-space-xl: 2.5rem;
-  --spacing-margin: 3rem;
-  --spacing-gutter: 1.5rem;
-}
-
-/* Material Symbols Icon support */
+/* Reset e suporte a ícones Material Symbols */
 .material-symbols-outlined {
   font-family: 'Material Symbols Outlined';
   font-weight: normal;
@@ -53,33 +15,9 @@
   -webkit-font-smoothing: antialiased;
 }
 
-/* Tipografias exatas do design Stitch */
-.font-display-lg { font-family: 'Montserrat', sans-serif; font-weight: 700; }
-.font-headline-lg { font-family: 'Montserrat', sans-serif; font-weight: 600; }
-.font-headline-md { font-family: 'Montserrat', sans-serif; font-weight: 600; }
-.font-headline-sm { font-family: 'Montserrat', sans-serif; font-weight: 600; }
-.font-label-lg { font-family: 'Montserrat', sans-serif; font-weight: 600; }
-.font-body-lg { font-family: 'Inter', sans-serif; font-weight: 400; }
-.font-body-md { font-family: 'Inter', sans-serif; font-weight: 400; }
-.font-body-sm { font-family: 'Inter', sans-serif; font-weight: 400; }
-.font-label-md { font-family: 'Inter', sans-serif; font-weight: 500; }
-.font-label-sm { font-family: 'Inter', sans-serif; font-weight: 500; }
-
-.text-display-lg { font-size: 3.5rem; line-height: 1.1; letter-spacing: -0.02em; }
-.text-display-lg-mobile { font-size: 2.25rem; line-height: 1.15; letter-spacing: -0.01em; }
-.text-headline-lg { font-size: 2.25rem; line-height: 1.2; letter-spacing: 0.02em; }
-.text-headline-lg-mobile { font-size: 1.75rem; line-height: 1.25; letter-spacing: 0.01em; }
-.text-headline-md { font-size: 1.5rem; line-height: 1.3; letter-spacing: 0.05em; }
-.text-headline-sm { font-size: 1.125rem; line-height: 1.4; letter-spacing: 0.08em; }
-.text-label-lg { font-size: 0.875rem; line-height: 1.2; letter-spacing: 0.12em; }
-.text-body-lg { font-size: 1.125rem; line-height: 1.6; }
-.text-body-md { font-size: 0.9375rem; line-height: 1.55; }
-.text-body-sm { font-size: 0.8125rem; line-height: 1.5; }
-.text-label-md { font-size: 0.75rem; line-height: 1.2; letter-spacing: 0.06em; }
-.text-label-sm { font-size: 0.6875rem; line-height: 1.15; letter-spacing: 0.08em; }
-
 body {
+  margin: 0;
+  padding: 0;
   background-color: #131313;
   color: #e5e2e1;
-  font-family: 'Inter', sans-serif;
 }
