@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import type { ActionState } from "@/actions/admin";
+import { ui } from "@/design/ui";
 
 // Formulário genérico do admin: roda a server action e mostra erro/sucesso.
 export function ActionForm({
@@ -9,8 +10,9 @@ export function ActionForm({
   children,
   className,
   submitLabel = "Salvar",
-  submitClassName = "px-4 py-2 bg-primary text-on-primary font-semibold rounded disabled:opacity-50",
+  submitClassName = ui.btnPrimary,
   confirm,
+  messageClassName,
 }: {
   action: (state: ActionState, fd: FormData) => Promise<ActionState>;
   children?: React.ReactNode;
@@ -18,6 +20,7 @@ export function ActionForm({
   submitLabel?: string;
   submitClassName?: string;
   confirm?: string;
+  messageClassName?: string;
 }) {
   const [state, formAction, pending] = useActionState(action, undefined);
   return (
@@ -32,8 +35,8 @@ export function ActionForm({
       <button type="submit" disabled={pending} className={submitClassName}>
         {pending ? "Aguarde..." : submitLabel}
       </button>
-      {state?.error && <p role="alert" className="text-sm text-error w-full">{state.error}</p>}
-      {state?.ok && <p role="status" className="text-sm text-primary w-full">{state.ok}</p>}
+      {state?.error && <p role="alert" className={`text-body-sm text-danger w-full ${messageClassName ?? ""}`}>{state.error}</p>}
+      {state?.ok && <p role="status" className={`text-body-sm text-gold w-full ${messageClassName ?? ""}`}>{state.ok}</p>}
     </form>
   );
 }
