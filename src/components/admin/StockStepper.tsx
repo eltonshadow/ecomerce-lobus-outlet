@@ -10,7 +10,7 @@ export function StockStepper({ name, size, sku, defaultValue }: { name: string; 
   return (
     <div title={sku} className={`grid grid-rows-[24px_40px] border ${zero ? "bg-danger border-ink" : "border-stroke"} ${changed ? "outline outline-2 outline-gold -outline-offset-2" : ""}`}>
       <label className="flex items-center justify-between gap-1 px-1.5 font-mono text-label-sm uppercase whitespace-nowrap">
-        <span className={`truncate tracking-normal ${zero ? "line-through" : ""}`}>{size}</span>
+        <span className={`min-w-0 truncate tracking-normal ${zero ? "line-through" : ""}`}>{size}</span>
         <input
           name={name}
           type="number"
