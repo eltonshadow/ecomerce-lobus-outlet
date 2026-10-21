@@ -87,7 +87,11 @@ async function main() {
   }
 
   const allCategories = await prisma.category.findMany();
-  const getCatId = (slug: string) => allCategories.find((c) => c.slug === slug)?.id!;
+  const getCatId = (slug: string) => {
+    const cat = allCategories.find((c) => c.slug === slug);
+    if (!cat) throw new Error(`Categoria do seed não encontrada: ${slug}`);
+    return cat.id;
+  };
 
   // 4. Produtos com Grade de Tamanhos
   const products = [

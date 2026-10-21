@@ -1,0 +1,8 @@
+# braces 3.0.3 é a última versão publicada e o advisory não tem correção.
+# Entra só como dependência de dev do eslint-config-next (fast-glob → micromatch)
+# e só recebe globs escritos no próprio repositório, então o DoS por padrão
+# aninhado não é alcançável por entrada externa. Revisar na data abaixo.
+[[IgnoredVulns]]
+id = "GHSA-vfj7-8cjw-p6xm"
+ignoreUntil = 2027-01-21
+reason = "Sem versão corrigida; dev-only (eslint), entrada controlada pelo repo."

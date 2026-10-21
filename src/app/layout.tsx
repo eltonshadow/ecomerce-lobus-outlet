@@ -31,6 +31,8 @@ export default function RootLayout({
           rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
         />
+        {/* Tailwind via CDN precisa rodar antes da pintura; migração para o build compilado está nas pendências do docs/DESIGN-SYSTEM.md. */}
+        {/* eslint-disable-next-line @next/next/no-sync-scripts */}
         <script src="https://cdn.tailwindcss.com"></script>
         <script dangerouslySetInnerHTML={{ __html: tailwindConfigScript }} />
       </head>
