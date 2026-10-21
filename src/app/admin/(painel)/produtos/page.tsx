@@ -157,7 +157,7 @@ async function Products({ searchParams }: { searchParams: SP }) {
                       </div>
                     </div>
                   </div>
-                  <div className="grid grid-cols-[repeat(auto-fit,minmax(68px,1fr))] gap-1.5">
+                  <div className={`grid gap-1.5 ${p.variants.some((v) => v.size.length > 3) ? "grid-cols-[repeat(auto-fit,minmax(88px,1fr))]" : "grid-cols-[repeat(auto-fit,minmax(68px,1fr))]"}`}>
                     {[...p.variants].sort(bySize).map((v) => (
                       <StockStepper key={v.id} name={`stock_${v.id}`} size={v.size} sku={v.sku} defaultValue={v.stockQuantity} />
                     ))}
