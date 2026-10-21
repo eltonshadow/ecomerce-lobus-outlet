@@ -46,6 +46,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     try {
       const saved = localStorage.getItem(CART_KEY);
       if (saved) {
+        // Lido depois da hidratação de propósito: no servidor não existe localStorage.
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setItems(JSON.parse(saved));
       }
     } catch {

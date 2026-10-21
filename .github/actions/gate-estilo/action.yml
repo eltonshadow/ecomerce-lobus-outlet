@@ -56,7 +56,6 @@ runs:
         pipx install lizard==1.24.0 || pip install --break-system-packages lizard==1.24.0
         PREFIX="$RUNNER_TEMP/gate-tools"
         npm install -g --prefix "$PREFIX" jscpd@4.3.0
-        echo "$PREFIX/bin" >> "$GITHUB_PATH"
         "$PREFIX/bin/jscpd" --version
 
     - name: Medir a base e o codigo novo
@@ -75,8 +74,12 @@ runs:
         LIMITE_CCN: ${{ inputs.limite-ccn }}
         CLI_DIRS: ${{ inputs.cli-dirs }}
         ACTION_PATH: ${{ github.action_path }}
+        # jscpd instalado no passo anterior. Entra no PATH so deste passo, em vez
+        # de GITHUB_PATH, que o zizmor aponta como vetor de execucao de codigo.
+        GATE_TOOLS_BIN: ${{ runner.temp }}/gate-tools/bin
       run: |
         set -euo pipefail
+        export PATH="$GATE_TOOLS_BIN:$PATH"
 
         # Branch nova ou primeiro push: nao existe base, e comparar com o vazio
         # acusaria o repositorio inteiro como acrescimo deste push.
