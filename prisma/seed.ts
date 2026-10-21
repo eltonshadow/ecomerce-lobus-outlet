@@ -3,6 +3,27 @@ import { hashPassword } from "../src/lib/password";
 
 const prisma = new PrismaClient();
 
+// Fotos antigas do seed (banco de imagens) não batiam com o produto. Troca só onde a URL
+// ainda é a original do seed, então foto cadastrada pelo admin nunca é sobrescrita.
+async function swapOldSeedPhotos() {
+  const oldPhotos: Record<string, string | null> = {
+    "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?q=80&w=800&auto=format&fit=crop": "/products/camiseta-wolf-heavy-preta.jpg",
+    "https://images.unsplash.com/photo-1591195853828-11db59a44f6b?q=80&w=800&auto=format&fit=crop": "/products/bermuda-cargo-ripstop-caqui.jpg",
+    "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?q=80&w=800&auto=format&fit=crop": "/products/conjunto-moletom-essential-off-white.jpg",
+    "https://images.unsplash.com/photo-1588850561407-ed78c282e89b?q=80&w=800&auto=format&fit=crop": "/products/bone-trucker-preto.jpg",
+    "https://images.unsplash.com/photo-1618354691373-d851c5c3a990?q=80&w=800&auto=format&fit=crop": "/products/camiseta-boxy-acid-wash-chumbo.jpg",
+    "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?q=80&w=800&auto=format&fit=crop": "/products/tenis-low-dunk-branco-preto.jpg",
+    "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?q=80&w=800&auto=format&fit=crop": null,
+    "https://images.unsplash.com/photo-1517445312882-bc9910d016b7?q=80&w=800&auto=format&fit=crop": null,
+  };
+  for (const [from, to] of Object.entries(oldPhotos)) {
+    const r = to
+      ? await prisma.productImage.updateMany({ where: { imageUrl: from }, data: { imageUrl: to } })
+      : await prisma.productImage.deleteMany({ where: { imageUrl: from } });
+    if (r.count) console.log(`✓ Foto ${to ? "trocada" : "removida"}: ${to ?? from}`);
+  }
+}
+
 async function main() {
   console.log("🌱 Populando banco de dados completo da Lobos G Outlet...");
 
@@ -372,24 +393,7 @@ async function main() {
     }
   }
 
-  // Fotos antigas do seed (banco de imagens) não batiam com o produto. Troca só onde a URL
-  // ainda é a original do seed, então foto cadastrada pelo admin nunca é sobrescrita.
-  const oldPhotos: Record<string, string | null> = {
-    "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?q=80&w=800&auto=format&fit=crop": "/products/camiseta-wolf-heavy-preta.jpg",
-    "https://images.unsplash.com/photo-1591195853828-11db59a44f6b?q=80&w=800&auto=format&fit=crop": "/products/bermuda-cargo-ripstop-caqui.jpg",
-    "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?q=80&w=800&auto=format&fit=crop": "/products/conjunto-moletom-essential-off-white.jpg",
-    "https://images.unsplash.com/photo-1588850561407-ed78c282e89b?q=80&w=800&auto=format&fit=crop": "/products/bone-trucker-preto.jpg",
-    "https://images.unsplash.com/photo-1618354691373-d851c5c3a990?q=80&w=800&auto=format&fit=crop": "/products/camiseta-boxy-acid-wash-chumbo.jpg",
-    "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?q=80&w=800&auto=format&fit=crop": "/products/tenis-low-dunk-branco-preto.jpg",
-    "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?q=80&w=800&auto=format&fit=crop": null,
-    "https://images.unsplash.com/photo-1517445312882-bc9910d016b7?q=80&w=800&auto=format&fit=crop": null,
-  };
-  for (const [from, to] of Object.entries(oldPhotos)) {
-    const r = to
-      ? await prisma.productImage.updateMany({ where: { imageUrl: from }, data: { imageUrl: to } })
-      : await prisma.productImage.deleteMany({ where: { imageUrl: from } });
-    if (r.count) console.log(`✓ Foto ${to ? "trocada" : "removida"}: ${to ?? from}`);
-  }
+  await swapOldSeedPhotos();
 
   // 5. Cupom de Boas-Vindas
   await prisma.coupon.upsert({
