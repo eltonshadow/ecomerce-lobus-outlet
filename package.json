@@ -31,7 +31,7 @@
     "typescript": "^5"
   },
   "prisma": {
-    "seed": "npx tsx prisma/seed.ts"
+    "seed": "tsx prisma/seed.ts"
   },
   "overrides": {
     "deepmerge-ts": "^8.0.2"
