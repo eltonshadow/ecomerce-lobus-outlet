@@ -3,7 +3,9 @@
 import { prisma } from "@/lib/prisma";
 import { getCustomer } from "@/lib/auth";
 import type { MeasurementsGuide, Product } from "@/types/store";
-import { buildQuote, createOrder, expireStaleOrders, CheckoutError, type CreateOrderInput, type QuoteInput } from "@/lib/orders";
+import { buildQuote, createOrder, expireStaleOrders, ITEM_IMAGE, CheckoutError, type CreateOrderInput, type QuoteInput } from "@/lib/orders";
+import { infinitePayEnabled } from "@/lib/infinitepay";
+import { payLinkFor } from "@/lib/payments";
 
 const SIZE_ORDER = ["PP", "P", "M", "G", "GG", "XG", "XGG"];
 // Ordena grade: letras na ordem PP..XGG ("P (38)" conta como P), depois numeração.
@@ -87,7 +89,7 @@ export async function getDeliveryZonesFromDB() {
 export async function quoteCheckoutAction(input: QuoteInput) {
   try {
     const q = await buildQuote(input);
-    return { success: true as const, quote: { subtotal: q.subtotal, deliveryFee: q.deliveryFee, deliveryZoneName: q.deliveryZoneName, discountValue: q.discountValue, total: q.total } };
+    return { success: true as const, quote: { subtotal: q.subtotal, deliveryFee: q.deliveryFee, deliveryZoneName: q.deliveryZoneName, discountValue: q.discountValue, total: q.total, payOnline: infinitePayEnabled() } };
   } catch (e) {
     return { success: false as const, error: e instanceof CheckoutError ? e.message : "Não foi possível calcular o pedido." };
   }
@@ -98,17 +100,37 @@ export async function createOrderAction(input: CreateOrderInput) {
     // Conta vem da sessão no servidor, nunca do cliente.
     const customer = await getCustomer();
     const order = await createOrder(input, customer?.id ?? null);
-    return { success: true as const, orderNumber: order.orderNumber };
+    return { success: true as const, orderNumber: order.orderNumber, checkoutUrl: await safePayLink(order.orderNumber) };
   } catch (e) {
     if (!(e instanceof CheckoutError)) console.error("Erro ao criar pedido:", e);
     return { success: false as const, error: e instanceof CheckoutError ? e.message : "Falha ao gravar pedido. Tente novamente." };
   }
 }
 
+// Link falhou: o pedido continua pendente e a página dele mostra "Pagar agora", que tenta de novo.
+async function safePayLink(orderNumber: string) {
+  if (!infinitePayEnabled()) return null;
+  try {
+    return await payLinkFor(orderNumber);
+  } catch (e) {
+    console.error("InfinitePay: link não criado para", orderNumber, e);
+    return null;
+  }
+}
+
+// Botão "Pagar agora" da página do pedido e da conta. Pedido de conta só abre para o dono:
+// o link leva nome, e-mail e telefone pré-preenchidos.
+export async function payOrderAction(orderNumber: string) {
+  const [order, me] = await Promise.all([prisma.order.findUnique({ where: { orderNumber }, select: { customerId: true } }), getCustomer()]);
+  if (order?.customerId && order.customerId !== me?.id) return { error: "Entre na sua conta para pagar este pedido." };
+  const url = await safePayLink(orderNumber);
+  return url ? { url } : { error: "Não foi possível abrir o pagamento agora. Tente de novo em instantes ou fale com a loja no WhatsApp." };
+}
+
 // Página pública do pedido (/pedido/[orderNumber]). Expõe só o necessário: sem CPF, e-mail ou telefone.
 export async function getPublicOrder(orderNumber: string) {
   await expireStaleOrders();
-  const o = await prisma.order.findUnique({ where: { orderNumber }, include: { items: true } });
+  const o = await prisma.order.findUnique({ where: { orderNumber }, include: { items: { include: ITEM_IMAGE } } });
   if (!o) return null;
   return {
     orderNumber: o.orderNumber,
@@ -123,7 +145,11 @@ export async function getPublicOrder(orderNumber: string) {
     total: Number(o.total),
     pixCopyPaste: o.status === "PENDING" ? o.pixCopyPaste : null,
     pixExpiresAt: o.pixExpiresAt?.toISOString() ?? null,
+    payOnline: infinitePayEnabled() && o.status === "PENDING",
+    captureMethod: o.captureMethod,
+    installments: o.installments,
+    receiptUrl: o.paymentStatus === "APPROVED" ? o.receiptUrl : null,
     createdAt: o.createdAt.toISOString(),
-    items: o.items.map((i) => ({ productName: i.productName, size: i.size, quantity: i.quantity, unitPrice: Number(i.unitPrice), totalPrice: Number(i.totalPrice) })),
+    items: o.items.map((i) => ({ productName: i.productName, size: i.size, colorName: i.colorName, quantity: i.quantity, unitPrice: Number(i.unitPrice), totalPrice: Number(i.totalPrice), image: i.variant.product.images[0]?.imageUrl ?? null })),
   };
 }

@@ -109,7 +109,15 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     );
   };
 
-  const clearCart = () => setItems([]);
+  // Grava na hora: o checkout da InfinitePay sai da página logo depois, antes do efeito de salvar rodar.
+  const clearCart = () => {
+    setItems([]);
+    try {
+      localStorage.removeItem(CART_KEY);
+    } catch {
+      // ignore
+    }
+  };
 
   const totalItems = items.reduce((acc, item) => acc + item.quantity, 0);
   const subtotal = items.reduce(

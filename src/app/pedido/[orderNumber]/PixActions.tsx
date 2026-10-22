@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { payOrderAction } from "@/actions/store";
+import { ui } from "@/design/ui";
 
 export function CopyPix({ code }: { code: string }) {
   const [copied, setCopied] = useState(false);
@@ -13,7 +15,7 @@ export function CopyPix({ code }: { code: string }) {
         setCopied(true);
         setTimeout(() => setCopied(false), 2500);
       }}
-      className="w-full py-3 bg-gradient-to-r from-primary to-primary-container text-on-primary font-label-lg text-label-lg uppercase tracking-wider rounded font-bold hover:brightness-110 transition-all"
+      className={`${ui.btnPrimary} w-full`}
     >
       {copied ? "Código copiado" : "Copiar código Pix"}
     </button>
@@ -23,12 +25,41 @@ export function CopyPix({ code }: { code: string }) {
 export function RefreshStatus() {
   const router = useRouter();
   return (
-    <button
-      type="button"
-      onClick={() => router.refresh()}
-      className="w-full py-2.5 bg-surface-container-high hover:bg-surface-container-highest text-on-surface rounded font-label-sm text-label-sm uppercase tracking-wider font-semibold transition-colors"
-    >
+    <button type="button" onClick={() => router.refresh()} className={`${ui.btnGhost} w-full`}>
       Já paguei, atualizar status
     </button>
   );
+}
+
+// Leva ao checkout da InfinitePay (cria o link de novo se a primeira tentativa falhou).
+export function PayButton({ orderNumber, label }: { orderNumber: string; label: string }) {
+  const [state, setState] = useState<{ busy: boolean; error?: string }>({ busy: false });
+  return (
+    <div className="flex flex-col gap-2">
+      <button
+        type="button"
+        disabled={state.busy}
+        onClick={async () => {
+          setState({ busy: true });
+          const r = await payOrderAction(orderNumber);
+          if (r.url) window.location.href = r.url;
+          else setState({ busy: false, error: r.error });
+        }}
+        className={`${ui.btnPrimary} w-full`}
+      >
+        {state.busy ? "Abrindo pagamento..." : label}
+      </button>
+      {state.error && <p role="alert" className="text-body-sm text-danger">{state.error}</p>}
+    </div>
+  );
+}
+
+// Pedido aguardando: confere o status sozinho enquanto a página está aberta.
+export function AutoRefresh({ seconds = 10 }: { seconds?: number }) {
+  const router = useRouter();
+  useEffect(() => {
+    const t = setInterval(() => router.refresh(), seconds * 1000);
+    return () => clearInterval(t);
+  }, [router, seconds]);
+  return null;
 }

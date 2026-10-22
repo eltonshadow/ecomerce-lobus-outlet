@@ -7,6 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { createSession, destroySession, requireAdmin } from "@/lib/auth";
 import { hashPassword, verifyPassword } from "@/lib/password";
 import { changeOrderStatus, CheckoutError } from "@/lib/orders";
+import { markRefunded, recheckPayment } from "@/lib/payments";
 
 // Toda action deste arquivo é um POST público: cada uma chama requireAdmin(roles) por conta própria.
 
@@ -86,6 +87,24 @@ export async function changeOrderStatusAction(_: ActionState, fd: FormData): Pro
     if (!STATUSES.includes(to)) throw new CheckoutError("Status inválido.");
     await changeOrderStatus(id(str(fd, "orderId")), to);
     return "Status atualizado.";
+  });
+}
+
+// ---------- Pagamentos (InfinitePay) ----------
+
+export async function recheckPaymentAction(_: ActionState, fd: FormData): Promise<ActionState> {
+  await requireAdmin(["ADMIN"]);
+  return run(async () => {
+    const r = await recheckPayment(id(str(fd, "orderId")));
+    return r === "paid" ? "Pagamento confirmado na InfinitePay." : "A InfinitePay ainda não confirma este pagamento.";
+  });
+}
+
+export async function markRefundedAction(_: ActionState, fd: FormData): Promise<ActionState> {
+  await requireAdmin(["ADMIN"]);
+  return run(async () => {
+    await markRefunded(id(str(fd, "orderId")));
+    return "Marcado como estornado.";
   });
 }
 
