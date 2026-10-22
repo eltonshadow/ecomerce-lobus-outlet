@@ -11,16 +11,21 @@ export const instant = false;
 
 async function Sidebar() {
   const admin = await requireAdmin();
-  const actionCount = await prisma.order.count({ where: { status: { in: ["PAID", "PREPARING"] } } });
+  const [actionCount, checkCount] = await Promise.all([
+    prisma.order.count({ where: { status: { in: ["PAID", "PREPARING"] } } }),
+    // Mesma regra de "Conferir" do payState: aviso sem confirmação, ou pago depois de cancelar.
+    prisma.order.count({ where: { paymentStatus: { not: "REFUNDED" }, OR: [{ paymentStatus: "PENDING", webhookAt: { not: null } }, { paymentStatus: "APPROVED", status: "CANCELLED" }] } }),
+  ]);
   const links = [
-    { href: "/admin", label: "Pedidos", show: true },
+    { href: "/admin", label: "Pedidos", show: true, count: actionCount },
+    { href: "/admin/pagamentos", label: "Pagamentos", show: admin.role === "ADMIN", count: checkCount },
     { href: "/admin/produtos", label: "Produtos", show: admin.role !== "ATENDIMENTO" },
     { href: "/admin/cupons", label: "Cupons", show: admin.role === "ADMIN" },
     { href: "/admin/usuarios", label: "Usuários", show: admin.role === "ADMIN" },
   ].filter((l) => l.show);
   return (
     <>
-      <SideNav links={links} actionCount={actionCount} />
+      <SideNav links={links} />
       <div className="md:mt-auto border-t border-line px-5 py-4 flex items-center gap-3">
         <span aria-hidden="true" className="w-10 h-10 shrink-0 rounded-full border border-stroke grid place-items-center font-display text-body-lg">
           {initials(admin.name)}

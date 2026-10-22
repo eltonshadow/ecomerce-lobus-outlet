@@ -31,11 +31,21 @@ export function CartDrawer() {
   const router = useRouter();
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [form, setForm] = useState({ name: "", phone: "", email: "", cpf: "", cep: "", street: "", number: "", neighborhood: "", complement: "", notes: "" });
-  // Logado: dados da conta preenchem o checkout (o vínculo do pedido à conta é feito no servidor).
-  const me = useMe((m) => setForm((f) => ({ ...f, name: f.name || m.name, phone: f.phone || m.phone, email: f.email || m.email, cpf: f.cpf || m.cpf })));
+  // Logado: dados da conta e endereço padrão preenchem o checkout (o vínculo do pedido à conta é feito no servidor).
+  const [addrId, setAddrId] = useState("outro");
+  type Saved = NonNullable<ReturnType<typeof useMe>>["addresses"][number];
+  const pickAddress = (a: Saved) => {
+    setAddrId(a.id);
+    setForm((f) => ({ ...f, cep: a.cep, street: a.street, number: a.number, neighborhood: a.neighborhood, complement: a.complement ?? "", notes: a.reference ?? "" }));
+  };
+  const me = useMe((m) => {
+    setForm((f) => ({ ...f, name: f.name || m.name, phone: f.phone || m.phone, email: f.email || m.email, cpf: f.cpf || m.cpf }));
+    if (m.addresses[0]) pickAddress(m.addresses[0]);
+  });
+  const saved = me?.addresses ?? [];
   const [couponInput, setCouponInput] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState("");
-  type Quote = { subtotal: number; deliveryFee: number; deliveryZoneName: string | null; discountValue: number; total: number };
+  type Quote = { subtotal: number; deliveryFee: number; deliveryZoneName: string | null; discountValue: number; total: number; payOnline: boolean };
   const [submitError, setSubmitError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
@@ -84,12 +94,18 @@ export function CartDrawer() {
       customer: { name: form.name, phone: form.phone, email: form.email, cpf: form.cpf },
       shipping: deliveryType === "MOTOBOY" ? { street: form.street, number: form.number, neighborhood: form.neighborhood, complement: form.complement, notes: form.notes } : undefined,
     });
-    setSubmitting(false);
     if (!r.success) {
+      setSubmitting(false);
       setSubmitError(r.error);
       return;
     }
     clearCart();
+    // InfinitePay: vai para o checkout deles e volta para /pedido/N. Sem link: a página do pedido oferece "Pagar agora".
+    if (r.checkoutUrl) {
+      window.location.href = r.checkoutUrl;
+      return;
+    }
+    setSubmitting(false);
     setIsCheckingOut(false);
     setIsCartOpen(false);
     router.push(`/pedido/${r.orderNumber}`);
@@ -329,7 +345,26 @@ export function CartDrawer() {
                 </button>
               </div>
 
-              {deliveryType === "MOTOBOY" && (
+              {deliveryType === "MOTOBOY" && saved.length > 0 && (
+                <fieldset className="space-y-2">
+                  <legend className={labelClass}>Entregar em</legend>
+                  {saved.map((a) => (
+                    <label key={a.id} className={`flex gap-3 items-start border p-2.5 cursor-pointer ${addrId === a.id ? "border-gold" : "border-line"}`}>
+                      <input type="radio" name="ck-addr" checked={addrId === a.id} onChange={() => pickAddress(a)} className="mt-1 accent-gold" />
+                      <span className="text-xs">
+                        <strong className="text-white">{a.label}</strong>
+                        <span className="block text-zinc-400">{a.street}, {a.number} · {a.neighborhood} · {a.cep.replace(/(\d{5})(\d{3})/, "$1-$2")}</span>
+                      </span>
+                    </label>
+                  ))}
+                  <label className={`flex gap-3 items-center border p-2.5 cursor-pointer text-xs ${addrId === "outro" ? "border-gold" : "border-line"}`}>
+                    <input type="radio" name="ck-addr" checked={addrId === "outro"} onChange={() => { setAddrId("outro"); setForm((f) => ({ ...f, cep: "", street: "", number: "", neighborhood: "", complement: "", notes: "" })); }} className="accent-gold" />
+                    <strong className="text-white">Outro endereço</strong>
+                  </label>
+                </fieldset>
+              )}
+
+              {deliveryType === "MOTOBOY" && (saved.length === 0 || addrId === "outro") && (
                 <>
                   <div className="grid grid-cols-3 gap-2">
                     <div>
@@ -386,8 +421,13 @@ export function CartDrawer() {
                       <span>{quote.deliveryFee === 0 ? <strong className="text-emerald-400">GRÁTIS</strong> : `R$ ${quote.deliveryFee.toFixed(2).replace(".", ",")}`}</span>
                     </div>
                     <div className="flex justify-between text-sm font-extrabold text-white pt-1.5 border-t border-zinc-800">
-                      <span>Total no Pix</span><span className="text-amber-400">R$ {quote.total.toFixed(2).replace(".", ",")}</span>
+                      <span>Total</span><span className="text-amber-400">R$ {quote.total.toFixed(2).replace(".", ",")}</span>
                     </div>
+                    {quote.payOnline && (
+                      <p className="pt-1.5 text-zinc-400">
+                        Pagamento pela <strong className="text-white">InfinitePay</strong>: Pix, crédito à vista ou parcelado, Apple Pay e Google Pay. Você escolhe na tela deles e volta para a página do pedido.
+                      </p>
+                    )}
                   </>
                 ) : (
                   <p className="text-zinc-400">{quoteError || "Calculando total..."}</p>
@@ -409,9 +449,9 @@ export function CartDrawer() {
                 <button
                   type="submit"
                   disabled={!quote || submitting}
-                  className="flex-1 py-3 bg-emerald-500 hover:bg-emerald-400 disabled:bg-zinc-800 disabled:text-zinc-500 text-black font-extrabold text-xs rounded-xl transition flex items-center justify-center gap-2 shadow-lg"
+                  className="flex-1 py-3 bg-gold hover:bg-goldHover disabled:bg-zinc-800 disabled:text-zinc-500 text-ink font-body text-label-lg uppercase transition flex items-center justify-center gap-2"
                 >
-                  {submitting ? "Gerando pedido..." : "Gerar Pedido & Pagar no Pix"}
+                  {submitting ? "Gerando pedido..." : quote?.payOnline ? "Ir para o pagamento" : "Gerar pedido e pagar no Pix"}
                   <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
