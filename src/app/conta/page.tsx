@@ -12,7 +12,8 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { PICKUP_STORE_INFO } from "@/data/delivery-zones";
 import { PayButton } from "@/app/pedido/[orderNumber]/PixActions";
 import { ui, brl } from "@/design/ui";
-import { AddressBook, ProfileCard } from "./AccountPanels";
+import { AddressBook, PasswordCard, ProfileCard } from "./AccountPanels";
+import { AccountTabs } from "./AccountTabs";
 
 export const metadata = { title: "Minha conta | LOBUS Outlet" };
 
@@ -65,39 +66,70 @@ async function Account() {
   const pending = orders.find((o) => o.status === "PENDING");
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className={ui.eyebrow}>Minha conta</p>
-          <h1 className={`${ui.pageTitle} mt-2`}>Olá, {customer.name.split(" ")[0]}</h1>
+    <AccountTabs
+      aside={
+        <div className="flex items-end justify-between gap-4 lg:block">
+          <div className="min-w-0">
+            <p className={ui.eyebrow}>Minha conta</p>
+            <h1 className={`${ui.pageTitle} mt-2 break-words`}>Olá, {customer.name.split(" ")[0]}</h1>
+            <p className="mt-2 text-body-md text-muted break-all">{customer.email}</p>
+          </div>
+          <form action={logoutCustomerAction} className="lg:mt-5">
+            <button type="submit" className={ui.linkUnderline}>
+              Sair
+            </button>
+          </form>
         </div>
-        <form action={logoutCustomerAction}>
-          <button type="submit" className={ui.linkUnderline}>
-            Sair
-          </button>
-        </form>
-      </div>
-
-      {(active || pending) && (
-        <div className={`grid gap-4 ${active && pending ? "lg:grid-cols-[1fr_400px]" : ""}`}>
-          {active && <Tracking order={active} addressLabel={addresses.find((a) => a.cep === active.shippingCep && a.number === active.shippingNumber)?.label} />}
-          {pending && <PayAlert order={pending} />}
+      }
+      footer={
+        <div className="text-body-md text-muted">
+          <p className="font-body text-label-sm uppercase text-paper mb-1">Loja · {PICKUP_STORE_INFO.neighborhood}</p>
+          {PICKUP_STORE_INFO.openingHours.split(" | ").map((h) => (
+            <p key={h}>{h}</p>
+          ))}
+          <p>{PICKUP_STORE_INFO.time}</p>
         </div>
-      )}
-
-      <div className="grid gap-4 lg:grid-cols-[1fr_440px] items-start">
-        <History orders={orders} />
-        <div className="flex flex-col gap-4">
-          <AddressBook addresses={addresses.map(({ id, label, cep, street, number, complement, neighborhood, city, state, reference, isDefault, zone }) => ({ id, label, cep, street, number, complement, neighborhood, city, state, reference, isDefault, zone }))} />
-          <ProfileCard me={{ name: customer.name, email: customer.email, phone: customer.phone, cpf: customer.cpf, birthDate: customer.birthDate?.toISOString().slice(0, 10) ?? "" }} />
-        </div>
-      </div>
-    </div>
+      }
+      tabs={[
+        {
+          id: "pedidos",
+          label: "Pedidos",
+          count: orders.length,
+          content: (
+            <div className="flex flex-col gap-6">
+              {(active || pending) && (
+                <div className={`grid gap-4 ${active && pending ? "xl:grid-cols-[1fr_400px]" : ""}`}>
+                  {active && <Tracking order={active} addressLabel={addresses.find((a) => a.cep === active.shippingCep && a.number === active.shippingNumber)?.label} />}
+                  {pending && <PayAlert order={pending} />}
+                </div>
+              )}
+              <History orders={orders} />
+            </div>
+          ),
+        },
+        {
+          id: "enderecos",
+          label: "Endereços",
+          count: addresses.length,
+          content: <AddressBook addresses={addresses.map(({ id, label, cep, street, number, complement, neighborhood, city, state, reference, isDefault, zone }) => ({ id, label, cep, street, number, complement, neighborhood, city, state, reference, isDefault, zone }))} />,
+        },
+        {
+          id: "dados",
+          label: "Dados",
+          content: (
+            <div className="grid gap-4 xl:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] items-start">
+              <ProfileCard me={{ name: customer.name, email: customer.email, phone: customer.phone, cpf: customer.cpf, birthDate: customer.birthDate?.toISOString().slice(0, 10) ?? "" }} />
+              <PasswordCard />
+            </div>
+          ),
+        },
+      ]}
+    />
   );
 }
 
 function Thumb({ src }: { src?: string | null }) {
-  return src ? <img src={src} alt="" className="w-12 h-12 shrink-0 object-cover bg-tag" /> : <span className="w-12 h-12 shrink-0 bg-tag" />;
+  return src ? <img src={src} alt="" className="w-14 h-14 shrink-0 object-cover bg-tag" /> : <span className="w-14 h-14 shrink-0 bg-tag" />;
 }
 
 function Tracking({ order, addressLabel }: { order: Orders[number]; addressLabel?: string }) {
@@ -194,14 +226,16 @@ function PayAlert({ order }: { order: Orders[number] }) {
 
 function History({ orders }: { orders: Orders }) {
   return (
-    <section aria-label="Histórico de pedidos" className="border border-line p-5 min-w-0">
+    <section aria-label="Histórico de pedidos" className="min-w-0">
       <div className="flex items-baseline gap-3 border-b border-line pb-3">
         <h2 className="font-display text-headline-md uppercase">Histórico</h2>
-        <span className="font-mono text-[13px] text-muted">{orders.length} {orders.length === 1 ? "pedido" : "pedidos"}</span>
+        <span className="font-mono text-[14px] text-muted">
+          {orders.length} {orders.length === 1 ? "pedido" : "pedidos"}
+        </span>
       </div>
       {orders.length === 0 ? (
         <div className="py-10 flex flex-col items-start gap-4">
-          <p className="text-muted">Você ainda não fez pedidos com esta conta.</p>
+          <p className="text-body-lg text-muted">Você ainda não fez pedidos com esta conta.</p>
           <Link href="/#vitrine" className={ui.btnPrimary}>
             Ver o drop
           </Link>
@@ -209,21 +243,22 @@ function History({ orders }: { orders: Orders }) {
       ) : (
         <ul>
           {orders.map((o) => (
-            <li key={o.id} className="border-b border-line last:border-0">
-              <Link href={`/pedido/${o.orderNumber}`} className="grid grid-cols-[48px_1fr] sm:grid-cols-[48px_1.4fr_auto_auto] items-center gap-x-4 gap-y-2 py-3 hover:bg-surface-container-low transition-colors">
+            <li key={o.id} className="border-b border-line">
+              <Link href={`/pedido/${o.orderNumber}`} className="grid grid-cols-[56px_1fr] sm:grid-cols-[56px_minmax(0,1fr)_auto_auto] items-center gap-x-5 gap-y-2 py-4 px-2 -mx-2 hover:bg-surface-container-low transition-colors">
                 <Thumb src={o.items[0]?.variant.product.images[0]?.imageUrl} />
                 <span className="min-w-0">
-                  <span className="font-mono text-[13px] font-semibold">{o.orderNumber}</span> <span className="font-mono text-[12px] text-muted">{day(o.createdAt)}</span>
-                  <span className="block text-body-sm truncate">
+                  <span className="font-mono text-[14px] font-semibold">{o.orderNumber}</span> <span className="font-mono text-[13px] text-muted">{day(o.createdAt)}</span>
+                  <span className="block text-body-lg truncate">
                     {o.items[0]?.productName}
                     {o.items.length > 1 && ` + ${o.items.length - 1}`}
                   </span>
-                  <span className="block text-body-sm text-muted">{o.deliveryMethod === "PICKUP" ? "Retirada na loja" : "Motoboy"}</span>
+                  <span className="block text-body-md text-muted">{o.deliveryMethod === "PICKUP" ? "Retirada na loja" : "Motoboy"}</span>
                 </span>
                 <span className={`hidden sm:inline-block px-2 py-1 font-body text-label-sm uppercase whitespace-nowrap ${TONE[o.status]}`}>{ORDER_STATUS_LABEL[o.status]}</span>
-                <span className="col-start-2 sm:col-start-auto flex flex-row-reverse sm:block items-center justify-between gap-3 text-right">
-                  <span className="block font-display text-[20px] leading-none tabular-nums">{brl(Number(o.total))}</span>
+                <span className="col-start-2 sm:col-start-auto flex flex-wrap flex-row-reverse sm:flex-col items-center sm:items-end justify-between gap-2 text-right">
+                  <span className="block font-display text-[26px] leading-none tabular-nums whitespace-nowrap">{brl(Number(o.total))}</span>
                   <span className={`sm:hidden inline-block px-1.5 py-0.5 font-body text-label-sm uppercase ${TONE[o.status]}`}>{ORDER_STATUS_LABEL[o.status]}</span>
+                  <span className="hidden sm:block font-body text-label-sm uppercase text-muted">Ver pedido</span>
                 </span>
               </Link>
             </li>

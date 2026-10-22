@@ -42,17 +42,18 @@ export function AddressFields({ initial = {}, prefix = "" }: { initial?: Address
     setZone(r.zone);
   };
 
+  // Rótulos curtos (o "opcional" vai no placeholder) para não quebrar linha e desalinhar os campos.
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-3 gap-y-3">
-      <Field id={id("cep")} name="cep" label="CEP" required inputMode="numeric" autoComplete="postal-code" placeholder="00000-000" value={v.cep ?? ""} onChange={onCep} className="col-span-2 sm:col-span-1" hint={cepMsg || undefined} />
-      <Field id={id("street")} name="street" label="Rua" required autoComplete="address-line1" value={v.street ?? ""} onChange={set("street")} className="col-span-2" />
-      <Field id={id("number")} name="number" label="Número" required value={v.number ?? ""} onChange={set("number")} />
-      <Field id={id("complement")} name="complement" label="Complemento · opcional" value={v.complement ?? ""} onChange={set("complement")} />
-      <Field id={id("neighborhood")} name="neighborhood" label="Bairro" required value={v.neighborhood ?? ""} onChange={set("neighborhood")} className="col-span-2 sm:col-span-1" />
-      <Field id={id("city")} name="city" label="Cidade" required value={v.city ?? ""} onChange={set("city")} />
+    <div className="grid grid-cols-2 sm:grid-cols-6 gap-x-4 gap-y-4 items-start">
+      <Field id={id("cep")} name="cep" label="CEP" required inputMode="numeric" autoComplete="postal-code" placeholder="00000-000" value={v.cep ?? ""} onChange={onCep} className="col-span-2" hint={cepMsg || undefined} />
+      <Field id={id("street")} name="street" label="Rua" required autoComplete="address-line1" value={v.street ?? ""} onChange={set("street")} className="col-span-2 sm:col-span-4" />
+      <Field id={id("number")} name="number" label="Número" required value={v.number ?? ""} onChange={set("number")} className="sm:col-span-2" />
+      <Field id={id("complement")} name="complement" label="Complemento" placeholder="Opcional" value={v.complement ?? ""} onChange={set("complement")} className="sm:col-span-4" />
+      <Field id={id("neighborhood")} name="neighborhood" label="Bairro" required value={v.neighborhood ?? ""} onChange={set("neighborhood")} className="col-span-2 sm:col-span-3" />
+      <Field id={id("city")} name="city" label="Cidade" required value={v.city ?? ""} onChange={set("city")} className="sm:col-span-2" />
       <Field id={id("state")} name="state" label="UF" required maxLength={2} value={v.state ?? ""} onChange={set("state")} />
-      <Field id={id("reference")} name="reference" label="Ponto de referência · opcional" value={v.reference ?? ""} onChange={set("reference")} className="col-span-2" />
-      <Field id={id("label")} name="label" label="Apelido" placeholder="Casa, Trabalho..." value={v.label ?? ""} onChange={set("label")} className="col-span-2 sm:col-span-1" />
+      <Field id={id("reference")} name="reference" label="Referência" placeholder="Opcional" value={v.reference ?? ""} onChange={set("reference")} className="col-span-2 sm:col-span-4" />
+      <Field id={id("label")} name="label" label="Apelido" placeholder="Casa, Trabalho..." value={v.label ?? ""} onChange={set("label")} className="col-span-2" />
       {zone !== undefined && <ZoneBox zone={zone} />}
     </div>
   );
@@ -60,20 +61,20 @@ export function AddressFields({ initial = {}, prefix = "" }: { initial?: Address
 
 function ZoneBox({ zone }: { zone: Zone }) {
   return (
-    <div className="col-span-2 sm:col-span-3 flex items-center justify-between gap-4 border border-gold px-4 py-3" aria-live="polite">
+    <div className="col-span-2 sm:col-span-6 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border border-gold px-4 py-3" aria-live="polite">
       {zone ? (
         <>
           <span>
             <span className="block font-body text-label-sm uppercase text-muted">Motoboy</span>
             <b className="font-display text-[20px] uppercase leading-tight">{zone.name}</b>
           </span>
-          <span className="text-right whitespace-nowrap">
+          <span className="ml-auto text-right whitespace-nowrap">
             <b className="block font-display text-[20px] text-gold tabular-nums">{brl(zone.fee)}</b>
             {zone.freeAbove !== null && <span className="text-body-sm text-muted">grátis acima de {brl(zone.freeAbove)}</span>}
           </span>
         </>
       ) : (
-        <span className="text-body-sm text-muted">Fora da área do motoboy. Você ainda pode retirar na loja.</span>
+        <span className="text-body-md text-paper">Fora da área do motoboy. Você ainda pode retirar na loja.</span>
       )}
     </div>
   );
