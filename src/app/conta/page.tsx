@@ -9,7 +9,7 @@ import { logoutCustomerAction } from "@/actions/account";
 import { SiteHeader } from "@/components/SiteHeader";
 import { ui, brl } from "@/design/ui";
 
-export const metadata = { title: "Minha conta | LOBUS Outlet" };
+export const metadata = { title: "Minha conta | Tropa da Mauá" };
 
 const STATUS_TONE: Record<OrderStatus, string> = {
   PENDING: "bg-gold text-ink",

@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { getAdmin } from "@/lib/auth";
 import { LoginForm } from "./LoginForm";
 
-export const metadata = { title: "Entrar | Painel LOBUS" };
+export const metadata = { title: "Entrar | Painel Tropa da Mauá" };
 
 // Já logado vai direto para o painel. Fica dentro de <Suspense> porque lê cookies.
 async function RedirectIfLogged() {
@@ -18,8 +18,8 @@ export default function LoginPage() {
         <RedirectIfLogged />
       </Suspense>
       <div className="w-full max-w-sm bg-surface-container p-8 rounded-lg shadow-lg">
-        <img src="/logo.png" alt="LOBUS Outlet" className="h-20 w-auto mx-auto mb-6" />
-        <h1 className="text-xl font-semibold text-on-surface text-center mb-6">Painel administrativo</h1>
+        <img src="/logo.png" alt="Tropa da Mauá" className="h-24 w-auto mx-auto mb-6" />
+        <h1 className="text-xl font-semibold text-on-surface text-center mb-6">Painel Tropa da Mauá</h1>
         <LoginForm />
       </div>
     </main>

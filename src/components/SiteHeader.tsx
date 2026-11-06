@@ -12,8 +12,9 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 bg-ink/95 backdrop-blur border-b border-line">
       <div className={`${ui.container} py-3 flex flex-wrap items-center justify-between gap-x-6 gap-y-3`}>
-        <Link href="/" aria-label="LOBUS Outlet, início" className="shrink-0">
-          <img src="/logo.png" alt="LOBUS Outlet" className="h-14 w-auto" />
+        <Link href="/" aria-label="Tropa da Mauá, início" className="shrink-0 flex items-center gap-3">
+          <img src="/logo.png" alt="Tropa da Mauá" className="h-12 w-auto" />
+          <span className="font-display text-xl uppercase tracking-wider text-paper hidden sm:inline">TROPA DA MAUÁ</span>
         </Link>
         <nav aria-label="Navegação" className="flex flex-wrap items-center gap-x-6 gap-y-2">
           <Link href="/" className={ui.navLink}>

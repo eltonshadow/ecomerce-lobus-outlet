@@ -10,7 +10,7 @@ import { AdminHead, Pill } from "@/components/admin/AdminHead";
 import { STATUS_LABEL, brl, inputCls, nextStep } from "@/components/admin/labels";
 import { ui } from "@/design/ui";
 
-export const metadata = { title: "Pedidos | Painel LOBUS" };
+export const metadata = { title: "Pedidos | Painel Tropa da Mauá" };
 
 type SP = Promise<{ status?: string; q?: string; erro?: string }>;
 

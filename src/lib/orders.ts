@@ -85,12 +85,12 @@ export async function buildQuote(input: QuoteInput, db: Prisma.TransactionClient
 
 // Não sequencial de propósito: o número do pedido é a "chave" da página pública do pedido.
 function newOrderNumber() {
-  return `LOB-${randomBytes(4).toString("hex").toUpperCase()}`;
+  return `TDM-${randomBytes(4).toString("hex").toUpperCase()}`;
 }
 
 // PIX simulado enquanto não há credencial real de gateway (ver README/pendências).
 function fakePixCopyPaste(orderNumber: string, total: number) {
-  return `00020126580014br.gov.bcb.pix0136${orderNumber}52040000530398654${String(total.toFixed(2).length).padStart(2, "0")}${total.toFixed(2)}5802BR5913LOBUS OUTLET6007GOIANIA62070503***6304SIMU`;
+  return `00020126580014br.gov.bcb.pix0136${orderNumber}52040000530398654${String(total.toFixed(2).length).padStart(2, "0")}${total.toFixed(2)}5802BR5913TROPA DA MAUA6004MAUA62070503***6304SIMU`;
 }
 
 export type CreateOrderInput = QuoteInput & {

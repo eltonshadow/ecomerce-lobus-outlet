@@ -8,7 +8,7 @@ import { StockStepper } from "@/components/admin/StockStepper";
 import { inputCls } from "@/components/admin/labels";
 import { ui } from "@/design/ui";
 
-export const metadata = { title: "Produtos | Painel LOBUS" };
+export const metadata = { title: "Mantos & Produtos | Painel Tropa da Mauá" };
 
 type SP = Promise<{ f?: string; cat?: string; q?: string }>;
 

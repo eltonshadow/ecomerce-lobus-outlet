@@ -239,7 +239,7 @@ export function CartDrawer() {
                       <Truck className="w-4 h-4 text-amber-400" />
                       <div>
                         <p className="text-xs font-bold text-white">Entrega Expressa via Motoboy</p>
-                        <p className="text-[10px] text-zinc-400">Goiânia e Aparecida de Goiânia</p>
+                        <p className="text-[10px] text-zinc-400">Mauá, Grande ABC e Grande SP</p>
                       </div>
                     </div>
                     <span className="text-xs font-black text-amber-400">
@@ -365,7 +365,7 @@ export function CartDrawer() {
               <div>
                 <label htmlFor="ck-coupon" className={labelClass}>Cupom de desconto</label>
                 <div className="flex gap-2">
-                  <input id="ck-coupon" type="text" placeholder="Ex: LOBOS10" value={couponInput} onChange={(e) => setCouponInput(e.target.value.toUpperCase())} className={inputClass} />
+                  <input id="ck-coupon" type="text" placeholder="Ex: ENXAME10" value={couponInput} onChange={(e) => setCouponInput(e.target.value.toUpperCase())} className={inputClass} />
                   {appliedCoupon ? (
                     <button type="button" onClick={() => { setAppliedCoupon(""); setCouponInput(""); }} className="px-3 bg-zinc-800 text-zinc-300 text-xs font-bold rounded-lg hover:bg-zinc-700">Remover</button>
                   ) : (

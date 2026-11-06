@@ -9,44 +9,44 @@ export interface LocalDeliveryZone {
 }
 
 export const PICKUP_STORE_INFO = {
-  name: "Loja Física Lobos G Outlet",
-  neighborhood: "Jardim Novo Mundo",
-  city: "Goiânia - GO",
-  address: "Jardim Novo Mundo, Goiânia - GO (Próximo à Praça Principal)",
-  openingHours: "Segunda a Sexta: 09:00 às 19:00 | Sábado: 09:00 às 16:00",
+  name: "Arena Mauá (Campo Oficial) & Sede da Torcida",
+  neighborhood: "Arena Mauá",
+  city: "Mauá - SP",
+  address: "Arena Mauá — Sede da Torcida & Campo Central (Retirada em dias de treino e jogos)",
+  openingHours: "Terça a Sexta: 18h às 22h | Sábado e Domingo: 08h às 18h (Dias de Jogo)",
   fee: 0,
-  time: "Pronto em até 1 hora",
-  whatsapp: "5562999999999",
-  instagram: "https://www.instagram.com/lobosg.outlet",
+  time: "Retirada no campo no dia do jogo ou na sede",
+  whatsapp: "5511999999999",
+  instagram: "https://www.instagram.com/tropadamaua",
 };
 
 export const LOCAL_DELIVERY_ZONES: LocalDeliveryZone[] = [
   {
     id: "zone-1",
-    name: "Região Leste / Jardim Novo Mundo e Adjacências",
-    description: "Jardim Novo Mundo, Vila Morais, Riviera, Universitário, Leste Universitário",
+    name: "Mauá e Bairros Vizinhos (Entrega Expressa)",
+    description: "Centro de Mauá, Zaíra, Vila Magini, Itapeva, Guapituba, Paranavaí",
     fee: 10.00,
     estimatedHours: "Mesmo dia (pedidos até 14h)",
     freeAbove: 199.00,
-    cepPrefixes: ["74703", "74705", "74710", "74713", "74715", "74605", "74610"],
+    cepPrefixes: ["09300", "09310", "09320", "09330", "09340", "09350", "09360", "09370", "09380", "09390"],
   },
   {
     id: "zone-2",
-    name: "Goiânia Central, Sul e Oeste",
-    description: "Centro, Setor Bueno, Marista, Oeste, Pedro Ludovico, Jardim Goiás, Bela Vista",
+    name: "Grande ABC (Santo André, SBC, Diadema, Ribeirão Pires)",
+    description: "Santo André, São Bernardo do Campo, São Caetano, Diadema, Ribeirão Pires",
     fee: 16.00,
     estimatedHours: "Mesmo dia ou até 24h",
     freeAbove: 249.00,
-    cepPrefixes: ["74000", "74100", "74200", "74800", "74110", "74150", "74215"],
+    cepPrefixes: ["09000", "09100", "09200", "09400", "09500", "09600", "09700", "09800", "09900"],
   },
   {
     id: "zone-3",
-    name: "Demais Bairros de Goiânia & Aparecida de Goiânia",
-    description: "Norte Ferroviário, Urias Magalhães, Vera Cruz, Garavelo, Buriti Sereno",
+    name: "São Paulo Capital e Grande SP",
+    description: "Zona Leste, Zona Sul, Centro, Zona Norte, Zona Oeste e Região Metropolitana",
     fee: 22.00,
     estimatedHours: "Em até 24h a 48h úteis",
     freeAbove: 299.00,
-    cepPrefixes: ["74300", "74400", "74500", "74900"],
+    cepPrefixes: ["01000", "02000", "03000", "04000", "05000", "08000"],
   },
 ];
 

@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="500" height="500">
+  <defs>
+    <linearGradient id="yellowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFE033" />
+      <stop offset="100%" stop-color="#FFB700" />
+    </linearGradient>
+    <linearGradient id="darkGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1F1F1F" />
+      <stop offset="100%" stop-color="#0A0A0A" />
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000" flood-opacity="0.6"/>
+    </filter>
+  </defs>
+
+  <!-- Escudo Base -->
+  <path d="M250 20 L440 85 C440 280 370 410 250 480 C130 410 60 280 60 85 Z" 
+        fill="url(#darkGrad)" stroke="#FFCC00" stroke-width="12" stroke-linejoin="round" filter="url(#glow)" />
+
+  <!-- Borda interna dourada -->
+  <path d="M250 38 L422 98 C422 268 360 390 250 458 C140 390 78 268 78 98 Z" 
+        fill="none" stroke="#FFCC00" stroke-width="3" stroke-opacity="0.6" stroke-linejoin="round" />
+
+  <!-- Faixa de Cabeçalho Preto/Amarelo -->
+  <path d="M84 100 L416 100 C390 145 350 170 250 170 C150 170 110 145 84 100 Z" 
+        fill="#FFCC00" />
+
+  <!-- Texto Superior TROPA DA MAUÁ -->
+  <text x="250" y="145" font-family="'Anton', 'Impact', sans-serif" font-size="42" font-weight="900" fill="#0A0A0A" text-anchor="middle" letter-spacing="2">TROPA DA MAUÁ</text>
+
+  <!-- Estrelas Douradas no Topo -->
+  <g fill="#FFCC00" transform="translate(250, 68)">
+    <!-- Estrela Central -->
+    <path d="M0 -14 L4 -4 L14 -4 L6 3 L9 13 L0 7 L-9 13 L-6 3 L-14 -4 L-4 -4 Z" />
+    <!-- Estrela Esquerda -->
+    <path transform="translate(-35, 4) scale(0.75)" d="M0 -14 L4 -4 L14 -4 L6 3 L9 13 L0 7 L-9 13 L-6 3 L-14 -4 L-4 -4 Z" />
+    <!-- Estrela Direita -->
+    <path transform="translate(35, 4) scale(0.75)" d="M0 -14 L4 -4 L14 -4 L6 3 L9 13 L0 7 L-9 13 L-6 3 L-14 -4 L-4 -4 Z" />
+  </g>
+
+  <!-- SÍMBOLO DA ABELHA (MASCOTE) -->
+  <g transform="translate(250, 295)">
+    <!-- Asas Esquerda -->
+    <path d="M-25 -40 C-110 -130 -160 -50 -120 15 C-90 60 -45 10 -20 -10 Z" 
+          fill="#FFCC00" fill-opacity="0.2" stroke="#FFCC00" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M-25 -25 C-80 -80 -120 -30 -90 10 C-70 40 -35 10 -20 0 Z" 
+          fill="none" stroke="#FFCC00" stroke-width="2" stroke-opacity="0.7" />
+
+    <!-- Asas Direita -->
+    <path d="M25 -40 C110 -130 160 -50 120 15 C90 60 45 10 20 -10 Z" 
+          fill="#FFCC00" fill-opacity="0.2" stroke="#FFCC00" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M25 -25 C80 -80 120 -30 90 10 C70 40 35 10 20 0 Z" 
+          fill="none" stroke="#FFCC00" stroke-width="2" stroke-opacity="0.7" />
+
+    <!-- Ferrão -->
+    <path d="M0 125 L-10 85 L10 85 Z" fill="#FFCC00" />
+
+    <!-- Corpo / Abdômen Listrado (Amarelo e Preto) -->
+    <!-- Faixa 1 (Superior) -->
+    <path d="M-36 -10 C-45 15 -42 28 0 32 C42 28 45 15 36 -10 Z" fill="#FFCC00" />
+    <!-- Faixa 2 (Preta) -->
+    <path d="M-42 24 C-42 42 -35 52 0 55 C35 52 42 42 42 24 C30 29 -30 29 -42 24 Z" fill="#0A0A0A" stroke="#FFCC00" stroke-width="1.5" />
+    <!-- Faixa 3 (Amarela) -->
+    <path d="M-36 48 C-32 68 -22 75 0 78 C22 75 32 68 36 48 C25 53 -25 53 -36 48 Z" fill="#FFCC00" />
+    <!-- Faixa 4 Ponta (Preta) -->
+    <path d="M-25 72 C-18 90 -10 95 0 98 C10 95 18 90 25 72 C15 76 -15 76 -25 72 Z" fill="#0A0A0A" stroke="#FFCC00" stroke-width="1.5" />
+
+    <!-- Tórax -->
+    <path d="M-30 -50 C-40 -35 -40 -15 0 -10 C40 -15 40 -35 30 -50 C18 -60 -18 -60 -30 -50 Z" fill="url(#yellowGrad)" stroke="#0A0A0A" stroke-width="3" />
+
+    <!-- Cabeça com Olhos Agressivos -->
+    <circle cx="0" cy="-70" r="24" fill="#0A0A0A" stroke="#FFCC00" stroke-width="3" />
+    <!-- Olho Esquerdo -->
+    <polygon points="-18,-76 -7,-72 -12,-62" fill="#FFCC00" />
+    <!-- Olho Direito -->
+    <polygon points="18,-76 7,-72 12,-62" fill="#FFCC00" />
+
+    <!-- Antenas -->
+    <path d="M-10 -90 Q-28 -118 -45 -115" fill="none" stroke="#FFCC00" stroke-width="4" stroke-linecap="round" />
+    <circle cx="-45" cy="-115" r="4" fill="#FFCC00" />
+    <path d="M10 -90 Q28 -118 45 -115" fill="none" stroke="#FFCC00" stroke-width="4" stroke-linecap="round" />
+    <circle cx="45" cy="-115" r="4" fill="#FFCC00" />
+  </g>
+
+  <!-- Faixa Inferior: VÁRZEA & TRADIÇÃO -->
+  <text x="250" y="435" font-family="'Anton', 'Impact', sans-serif" font-size="24" font-weight="bold" fill="#FFCC00" text-anchor="middle" letter-spacing="5">• O ENXAME •</text>
+</svg>

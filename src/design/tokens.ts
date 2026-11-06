@@ -1,17 +1,17 @@
-// Design system LOBUS: fonte única de cores, fontes e escala. Ver docs/DESIGN-SYSTEM.md.
+// Design system TROPA DA MAUÁ: cores oficiais Amarelo & Preto do Enxame.
 // O layout raiz transforma isto na config do Tailwind (CDN). Não declare cor/fonte fora daqui.
 
 export const palette = {
-  ink: "#0B0B0A", // fundo da página
-  paper: "#F3EFE6", // texto principal
-  tag: "#EDE8DD", // etiqueta de produto (card claro)
-  muted: "#B9B3A6", // texto secundário
-  line: "#2A2824", // divisórias, bordas
-  ghost: "#2E2B26", // texto decorativo (faixa corrida)
-  stroke: "#4A463E", // contorno do LOBUS gigante
-  gold: "#D4AF37", // acento único: CTA, preço em destaque, item ativo
-  goldHover: "#E6C65A",
-  danger: "#FF8A7A",
+  ink: "#0A0A0A", // fundo da página: preto raiz da várzea
+  paper: "#F7F7F2", // texto principal
+  tag: "#EDE9DE", // etiqueta de produto (card claro)
+  muted: "#A8A396", // texto secundário
+  line: "#262624", // divisórias, bordas
+  ghost: "#1E1E1C", // texto decorativo (faixa corrida)
+  stroke: "#3E3A2A", // contorno do TROPA DA MAUÁ gigante
+  gold: "#FFCC00", // amarelo oficial da Tropa da Mauá: CTA, destaque, abelha
+  goldHover: "#FFE033", // hover do amarelo
+  danger: "#EF4444",
 } as const;
 
 // Nomes herdados do template (Material) apontando para a paleta nova,

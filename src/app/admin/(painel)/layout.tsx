@@ -41,11 +41,11 @@ export default function PainelLayout({ children }: { children: React.ReactNode }
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-ink text-paper">
       <aside className="md:w-60 md:shrink-0 md:h-screen md:sticky md:top-0 bg-surface-container-lowest border-b md:border-b-0 md:border-r border-line flex flex-col">
-        <Link href="/admin" aria-label="Painel LOBUS" className="flex items-center gap-3 px-5 pt-6 pb-7">
+        <Link href="/admin" aria-label="Painel Tropa da Mauá" className="flex items-center gap-3 px-5 pt-6 pb-7">
           <img src="/logo.png" alt="" className="w-12 h-12" />
           <span>
-            <b className="block font-display text-headline-md uppercase leading-none">LOBUS</b>
-            <span className="font-body text-label-sm uppercase text-muted">Painel</span>
+            <b className="block font-display text-xl uppercase leading-none">TROPA DA MAUÁ</b>
+            <span className="font-body text-label-sm uppercase text-muted">Gestão do Clube</span>
           </span>
         </Link>
         <Suspense fallback={<span className="px-5 text-body-sm text-muted">Carregando...</span>}>

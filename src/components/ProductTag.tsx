@@ -31,7 +31,7 @@ export function ProductTag({ product, onOpen }: { product: Product; onOpen: (p: 
         <span className="flex items-end justify-between gap-3 border-t border-dashed border-ink pt-2.5 font-mono text-[12px] uppercase">
           <span className="flex flex-col">
             {off > 0 && <span className="line-through opacity-60">{brl(product.originalPrice!)}</span>}
-            Preço outlet
+            Preço torcedor
           </span>
           <span className="font-display text-[30px] leading-none tabular-nums">{brl(product.price)}</span>
         </span>

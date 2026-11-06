@@ -3,71 +3,56 @@ import { hashPassword } from "../src/lib/password";
 
 const prisma = new PrismaClient();
 
-// Fotos antigas do seed (banco de imagens) não batiam com o produto. Troca só onde a URL
-// ainda é a original do seed, então foto cadastrada pelo admin nunca é sobrescrita.
-async function swapOldSeedPhotos() {
-  const oldPhotos: Record<string, string | null> = {
-    "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?q=80&w=800&auto=format&fit=crop": "/products/camiseta-wolf-heavy-preta.jpg",
-    "https://images.unsplash.com/photo-1591195853828-11db59a44f6b?q=80&w=800&auto=format&fit=crop": "/products/bermuda-cargo-ripstop-caqui.jpg",
-    "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?q=80&w=800&auto=format&fit=crop": "/products/conjunto-moletom-essential-off-white.jpg",
-    "https://images.unsplash.com/photo-1588850561407-ed78c282e89b?q=80&w=800&auto=format&fit=crop": "/products/bone-trucker-preto.jpg",
-    "https://images.unsplash.com/photo-1618354691373-d851c5c3a990?q=80&w=800&auto=format&fit=crop": "/products/camiseta-boxy-acid-wash-chumbo.jpg",
-    "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?q=80&w=800&auto=format&fit=crop": "/products/tenis-low-dunk-branco-preto.jpg",
-    "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?q=80&w=800&auto=format&fit=crop": null,
-    "https://images.unsplash.com/photo-1517445312882-bc9910d016b7?q=80&w=800&auto=format&fit=crop": null,
-  };
-  for (const [from, to] of Object.entries(oldPhotos)) {
-    const r = to
-      ? await prisma.productImage.updateMany({ where: { imageUrl: from }, data: { imageUrl: to } })
-      : await prisma.productImage.deleteMany({ where: { imageUrl: from } });
-    if (r.count) console.log(`✓ Foto ${to ? "trocada" : "removida"}: ${to ?? from}`);
-  }
-}
-
 async function main() {
-  console.log("🌱 Populando banco de dados completo da Lobos G Outlet...");
+  console.log("🐝 Populando banco de dados oficial da Tropa da Mauá...");
 
-  // 1. Ponto de Retirada Física
+  // 1. Ponto de Retirada Oficial (Arena Mauá / Dia de Jogo)
   await prisma.pickupPoint.upsert({
-    where: { id: "loja-jardim-novo-mundo" },
-    update: {},
+    where: { id: "arena-maua" },
+    update: {
+      name: "Arena Mauá (Campo Oficial) & Sede da Torcida",
+      address: "Arena Mauá — Sede da Torcida & Campo Central (Mauá - SP)",
+      openingHours: "Terça a Sexta: 18:00 às 22:00 | Sábado e Domingo: 08:00 às 18:00 (Dias de Jogo)",
+      instructions: "Apresente o número do pedido ou comprovante do Pix na tenda oficial da diretoria no campo de jogo.",
+      active: true,
+    },
     create: {
-      id: "loja-jardim-novo-mundo",
-      name: "Loja Física - Lobos G Outlet",
-      address: "Jardim Novo Mundo, Goiânia - GO (Próximo à Praça Principal)",
-      openingHours: "Segunda a Sexta: 09:00 às 19:00 | Sábado: 09:00 às 16:00",
-      instructions: "Apresente o número do pedido ou seu WhatsApp no balcão de retirada.",
+      id: "arena-maua",
+      name: "Arena Mauá (Campo Oficial) & Sede da Torcida",
+      address: "Arena Mauá — Sede da Torcida & Campo Central (Mauá - SP)",
+      openingHours: "Terça a Sexta: 18:00 às 22:00 | Sábado e Domingo: 08:00 às 18:00 (Dias de Jogo)",
+      instructions: "Apresente o número do pedido ou comprovante do Pix na tenda oficial da diretoria no campo de jogo.",
       active: true,
     },
   });
 
-  // 2. Zonas de Entrega por Motoboy
+  // 2. Zonas de Entrega por Motoboy e Envio
   const zones = [
     {
-      id: "zone-leste-novo-mundo",
-      name: "Região Leste / Jardim Novo Mundo e Adjacências",
-      cepPrefixes: ["74703", "74705", "74710", "74713", "74715", "74605", "74610"],
-      neighborhoods: ["Jardim Novo Mundo", "Vila Morais", "Riviera", "Universitário"],
+      id: "zone-maua-express",
+      name: "Mauá e Bairros Vizinhos (Entrega Expressa)",
+      cepPrefixes: ["09300", "09310", "09320", "09330", "09340", "09350", "09360", "09370", "09380", "09390", "74703"], // inclui prefixos de teste
+      neighborhoods: ["Centro", "Jardim Zaíra", "Vila Magini", "Itapeva", "Guapituba", "Paranavaí", "Vila Mercedes"],
       deliveryFee: 10.00,
       estimatedDeliveryHours: 12,
       freeShippingAbove: 199.00,
       active: true,
     },
     {
-      id: "zone-goiania-central",
-      name: "Goiânia Central, Sul e Oeste",
-      cepPrefixes: ["74000", "74100", "74200", "74800", "74110", "74150", "74215"],
-      neighborhoods: ["Centro", "Setor Bueno", "Marista", "Setor Oeste", "Jardim Goiás"],
+      id: "zone-grande-abc",
+      name: "Grande ABC (Santo André, SBC, Diadema, Ribeirão Pires)",
+      cepPrefixes: ["09000", "09100", "09200", "09400", "09500", "09600", "09700", "09800", "09900", "74000"],
+      neighborhoods: ["Santo André", "São Bernardo do Campo", "São Caetano do Sul", "Diadema", "Ribeirão Pires"],
       deliveryFee: 16.00,
       estimatedDeliveryHours: 24,
       freeShippingAbove: 249.00,
       active: true,
     },
     {
-      id: "zone-aparecida-demais",
-      name: "Demais Bairros de Goiânia & Aparecida de Goiânia",
-      cepPrefixes: ["74300", "74400", "74500", "74900"],
-      neighborhoods: ["Norte Ferroviário", "Urias Magalhães", "Garavelo", "Buriti Sereno"],
+      id: "zone-sp-capital",
+      name: "São Paulo Capital e Grande SP",
+      cepPrefixes: ["01000", "02000", "03000", "04000", "05000", "08000", "74300"],
+      neighborhoods: ["Zona Leste", "Zona Sul", "Zona Norte", "Zona Oeste", "Centro"],
       deliveryFee: 22.00,
       estimatedDeliveryHours: 36,
       freeShippingAbove: 299.00,
@@ -83,15 +68,12 @@ async function main() {
     });
   }
 
-  // 3. Categorias Principais
+  // 3. Categorias Oficiais
   const categories = [
-    { name: "Camisetas", slug: "camisetas", displayOrder: 1 },
-    { name: "Bermudas", slug: "bermudas", displayOrder: 2 },
-    { name: "Conjuntos", slug: "conjuntos", displayOrder: 3 },
-    { name: "Calçados", slug: "calcados", displayOrder: 4 },
-    { name: "Acessórios", slug: "acessorios", displayOrder: 5 },
-    { name: "Polos", slug: "polos", displayOrder: 6 },
-    { name: "Moletons & Jaquetas", slug: "moletons-jaquetas", displayOrder: 7 },
+    { name: "Mantos de Jogo", slug: "mantos-de-jogo", displayOrder: 1 },
+    { name: "Treino & Torcida", slug: "treino-torcida", displayOrder: 2 },
+    { name: "Agasalhos & Calções", slug: "agasalhos-calcoes", displayOrder: 3 },
+    { name: "Acessórios", slug: "acessorios", displayOrder: 4 },
   ];
 
   for (const cat of categories) {
@@ -110,272 +92,236 @@ async function main() {
   const allCategories = await prisma.category.findMany();
   const getCatId = (slug: string) => {
     const cat = allCategories.find((c) => c.slug === slug);
-    if (!cat) throw new Error(`Categoria do seed não encontrada: ${slug}`);
+    if (!cat) throw new Error(`Categoria não encontrada: ${slug}`);
     return cat.id;
   };
 
-  // 4. Produtos com Grade de Tamanhos
+  // 4. Produtos e Mantos da Tropa da Mauá
   const products = [
     {
-      name: "Camiseta Estonada Heavyweight Black",
-      slug: "camiseta-estonada-heavyweight-black",
-      categoryId: getCatId("camisetas"),
-      description: "Camiseta heavyweight em algodão peruano fio 40.1 com lavagem estonada e gola canelada.",
-      originalPrice: 149.00,
-      price: 89.90,
-      isOutletDiscount: true,
-      featured: true,
-      images: ["https://lh3.googleusercontent.com/aida-public/AB6AXuDtGzbFeugtPvccukRy91sOUm0T6aNDWi-GbNw7-V_dI3F2qNJDNFViYAa-zF_RBGq3alM0MdYxg63jWD2495_dCFsjhpK-_NwjlPCuF9ZslLUsy_VyGoC223S_Tr2OwP8l74QWh2sH0J78YchS0b0hTZgHVAelEdqHkW0J7eVtYwV-JDruC-HH2xsZcNvu0lkfK6k4WXubHTvAP8UQlisLfYqY_hpr7uj1X0eRqwg-jzLId0uK8L9eag"],
-      variants: [
-        { sku: "LOB-CAM-EST-BLK-P", size: "P", stockQuantity: 3 },
-        { sku: "LOB-CAM-EST-BLK-M", size: "M", stockQuantity: 5 },
-        { sku: "LOB-CAM-EST-BLK-G", size: "G", stockQuantity: 4 },
-        { sku: "LOB-CAM-EST-BLK-GG", size: "GG", stockQuantity: 2 },
-      ],
-    },
-    {
-      name: "Camisa Polo Custom Fit Navy Blue",
-      slug: "camisa-polo-custom-fit-navy-blue",
-      categoryId: getCatId("polos"),
-      description: "Polo em piquet premium, modelagem custom fit e gola com acabamento contrastante.",
-      originalPrice: 199.00,
-      price: 119.90,
-      isOutletDiscount: true,
-      featured: true,
-      images: ["https://lh3.googleusercontent.com/aida-public/AB6AXuD-bThnYk2FpKU0Zd35PJbOjGu-qFotmFBXimOS3ve-JFstj5gmCT_SFE7KG_jBkDL_8l8BiJ7GOOiTUxtfJiaEAgDnGsum4ZsU6fyILS197BZhp4AzoXigwKbUyvAiLhPHjudsitILYBIWMx_pMNOrT_PaTb2RkTk87nSFnjsAt91PUvheMgaqe2-tmh5sBXAXgUTJlSTkhu2jcHgweLqc9CJWXxYl1QgXiz0CG1jiwBWVIGXKulj1dw"],
-      variants: [
-        { sku: "LOB-POL-CST-NVY-P", size: "P", stockQuantity: 2 },
-        { sku: "LOB-POL-CST-NVY-M", size: "M", stockQuantity: 4 },
-        { sku: "LOB-POL-CST-NVY-G", size: "G", stockQuantity: 4 },
-        { sku: "LOB-POL-CST-NVY-GG", size: "GG", stockQuantity: 1 },
-      ],
-    },
-    {
-      name: "Bermuda Jeans Destroyed Slim Confort",
-      slug: "bermuda-jeans-destroyed-slim-confort",
-      categoryId: getCatId("bermudas"),
-      description: "Bermuda jeans com elastano, lavagem destroyed e modelagem slim confortável.",
-      originalPrice: 229.00,
+      name: "Manto Titular 2026/27 — Listrado Clássico 'O Enxame'",
+      slug: "manto-titular-2026-tropa-da-maua",
+      categorySlug: "mantos-de-jogo",
+      description: "Manto sagrado oficial nº 1 da Tropa da Mauá temporada 2026/27. Produzido em tecido Dry-Fit tecnológico com acabamento colmeia respirável, escudo oficial bordado em alta definição, patch termocolante e gola V reforçada. O manto que impõe respeito na várzea.",
       price: 139.90,
-      isOutletDiscount: true,
-      featured: true,
-      images: ["https://lh3.googleusercontent.com/aida-public/AB6AXuDlWmeh1kGwJgd4hwgHhu1Z_VEecmAiDoK2OYDq0qqviKkGwn4NJlSRgqbda2Fqd9xuFjWpysPxvbj6XYxRcWpgFhdP2e6lF89xeFkmRrxrU3f4cLOtAMA6zLeZwKyGGVMt27ypKy2AauhFjsZVvTT_r1Bjko2Lk3Zzk--NFE5EzbLt75jqsmhdw2yzF27JxXwOnBziV9krCNL8nwtGEPk2DoUOwl4LC0ib6hsg7SMu7DwP57c3NO8UPQ"],
-      variants: [
-        { sku: "LOB-BER-JNS-DST-38", size: "38", stockQuantity: 2 },
-        { sku: "LOB-BER-JNS-DST-40", size: "40", stockQuantity: 3 },
-        { sku: "LOB-BER-JNS-DST-42", size: "42", stockQuantity: 3 },
-        { sku: "LOB-BER-JNS-DST-44", size: "44", stockQuantity: 1 },
-      ],
-    },
-    {
-      name: "Moletom Canguru Oversized Acid Wash",
-      slug: "moletom-canguru-oversized-acid-wash",
-      categoryId: getCatId("moletons-jaquetas"),
-      description: "Moletom canguru heavyweight 3 cabos flanelado, lavagem acid wash e capuz forrado.",
-      originalPrice: 289.00,
-      price: 189.90,
-      isOutletDiscount: true,
-      featured: true,
-      images: ["https://lh3.googleusercontent.com/aida-public/AB6AXuBxAd4dDNSw0aDQOFFW6WSWAzBPT1S5zMtZnUXDLtk3f1CPcHjIoHr2CjWot_QhbSZVC_5PPM6qkwPwempaON8pp1SS44DsXBy4QxHPOKHCZFLBL3rowFc2I0Ha0t_m6RgfoKGlsP2tLOnkD5iAvlDE9rJ91YGf8zCZ9jjh0z_YvQ6LtJ2q9XJBC7YuXBIaRYA8B_Gech5kVJBgv7IH9UqEs_q3meVcgtn4dCxeWnFN9LjbpMok9K--5w"],
-      variants: [
-        { sku: "LOB-MOL-CNG-ACD-P", size: "P", stockQuantity: 1 },
-        { sku: "LOB-MOL-CNG-ACD-M", size: "M", stockQuantity: 3 },
-        { sku: "LOB-MOL-CNG-ACD-G", size: "G", stockQuantity: 3 },
-        { sku: "LOB-MOL-CNG-ACD-GG", size: "GG", stockQuantity: 2 },
-      ],
-    },
-    {
-      name: "Tênis Casual Couro Street White & Gold",
-      slug: "tenis-casual-couro-street-white-gold",
-      categoryId: getCatId("calcados"),
-      description: "Tênis casual em couro genuíno branco com detalhes dourados e solado de borracha.",
-      originalPrice: 399.00,
-      price: 259.90,
-      isOutletDiscount: true,
-      featured: true,
-      images: ["https://lh3.googleusercontent.com/aida-public/AB6AXuCprVJwPtqX4RHBt2chyIeVAGZeBV-7NXlI2zXhTstwFk15pGrJckA3mQWRnX_O8MhYXUAHi_LWd2tLuOxRR9ezBVJSG8V7HC4LoVL7RAfge6RTA4KLjNKMURsIp4IhJ0GUSLhfNQIw6fLQGh3z50QOpQ-El3WLdcGpLqu_6pQc-Wp3qbyVPdSZ5I9A4vHrbzSk6bSq60H6WzKYwYvlUsjjYbqdtElCQMvaKFyJ6R6dXgIdbVRtFOREuw"],
-      variants: [
-        { sku: "LOB-TEN-CRO-WGD-39", size: "39", stockQuantity: 1 },
-        { sku: "LOB-TEN-CRO-WGD-40", size: "40", stockQuantity: 2 },
-        { sku: "LOB-TEN-CRO-WGD-41", size: "41", stockQuantity: 2 },
-        { sku: "LOB-TEN-CRO-WGD-42", size: "42", stockQuantity: 1 },
-      ],
-    },
-    {
-      name: "Bermuda Sarja Cargo Utilitária Chumbo",
-      slug: "bermuda-sarja-cargo-utilitaria-chumbo",
-      categoryId: getCatId("bermudas"),
-      description: "Bermuda cargo em sarja premium com bolsos utilitários reforçados.",
-      originalPrice: 199.00,
-      price: 129.90,
-      isOutletDiscount: true,
-      featured: true,
-      images: ["https://lh3.googleusercontent.com/aida-public/AB6AXuBC6l4kfDAW6lqwjT_Bxwz2rFJ1lYP2AZcGncovfGy2DKEWDRwYnR58HTwnRXA0E_vJyvL1uTb-q6IaFTrisLPwm1QC7V2f4LrWwQOX_MZfK_oLKSSRuXinxDZUI4biMW_b-y87EXtqvptCEDOHVqHr9hP0tR042R-BpNJXBK8twkmvRpcOWUp5yVHf6L1oL6D_Py10TNdvqFOwAb4ve-ulGqOxt76sQZmBzU6LGH0lp40Y2QvxYgCIEA"],
-      variants: [
-        { sku: "LOB-BER-SRJ-CHB-38", size: "38", stockQuantity: 1 },
-        { sku: "LOB-BER-SRJ-CHB-40", size: "40", stockQuantity: 2 },
-        { sku: "LOB-BER-SRJ-CHB-42", size: "42", stockQuantity: 1 },
-        { sku: "LOB-BER-SRJ-CHB-44", size: "44", stockQuantity: 0 },
-      ],
-    },
-    {
-      name: "Jaqueta Windbreaker Impermeável",
-      slug: "jaqueta-windbreaker-impermeavel",
-      categoryId: getCatId("moletons-jaquetas"),
-      description: "Jaqueta corta-vento impermeável com capuz embutido e ziper frontal.",
-      originalPrice: 269.00,
-      price: 179.90,
-      isOutletDiscount: true,
-      featured: true,
-      images: ["https://lh3.googleusercontent.com/aida-public/AB6AXuAuLgSwYaTI37EXqm2IMpl9BezfPKXQOeryVqVSffUbh7ektb9WLt9Dj8aVA2122xG-TDj6eZPNUIEjtoYTmARrx7oS3jYCVL1IY4t5cfWPPQpYHhIB_dbVUepGRyLmxJD1A5StliPOC0prUjzPILKRHsBr0Xw15tzV_lUq2d5h_igkRyL6H9DeuErNhGuLlSyQe-dUKxT78TjvHyIwAq2SQPkgzrF0yPoM9sDZHDbFripCB7y9szt3Ig"],
-      variants: [
-        { sku: "LOB-JAQ-WND-BLK-P", size: "P", stockQuantity: 2 },
-        { sku: "LOB-JAQ-WND-BLK-M", size: "M", stockQuantity: 3 },
-        { sku: "LOB-JAQ-WND-BLK-G", size: "G", stockQuantity: 2 },
-        { sku: "LOB-JAQ-WND-BLK-GG", size: "GG", stockQuantity: 1 },
-      ],
-    },
-    {
-      name: "Boné Aba Curva Bordado 3D Lobus",
-      slug: "bone-aba-curva-bordado-3d-lobus",
-      categoryId: getCatId("acessorios"),
-      description: "Boné aba curva estruturado com bordado 3D frontal e fecho ajustável.",
-      originalPrice: 129.00,
-      price: 79.90,
-      isOutletDiscount: true,
-      featured: true,
-      images: ["https://lh3.googleusercontent.com/aida-public/AB6AXuDcLOrJ3MZUXnyTSFjWEddVrCQZ5owLxX_ZTshQ4sdTdDGP56mG9apTpKuX188r8Ivcg4RAgbCXUAuqnvqHCUXv9YDXfp34JS-v7bhKsUSv2qTk7KlrrBJ67D3PPFbGAWABybFeeyY_W7-40R2sxWdxNh7nEWmi3uqAaXrxKLq0P1y0QtTvTviWHJH3dHQUE7CM37B-up7l0CceBjYo9QdCulzf03vMmmSGHk4nJWsLzGcxnau2B-jOMg"],
-      variants: [
-        { sku: "LOB-BON-ABC-LOB-UN", size: "Único", stockQuantity: 10 },
-      ],
-    },
-    {
-      name: "Camiseta Streetwear Oversized 'Wolf Heavy' Preta",
-      slug: "camiseta-streetwear-oversized-wolf-heavy-preta",
-      categoryId: getCatId("camisetas"),
-      description: "Camiseta premium 100% algodão penteado fio 26.1 com gramatura pesada 220g. Modelagem oversized autêntica, gola canelada de 3cm e estampa em silk screen de alta durabilidade.",
-      originalPrice: 149.90,
-      price: 89.90,
-      isOutletDiscount: true,
-      featured: true,
-      images: [
-        "/products/camiseta-wolf-heavy-preta.jpg",
-      ],
-      variants: [
-        { sku: "LOB-CAM-WLF-BLK-P", size: "P", stockQuantity: 2 },
-        { sku: "LOB-CAM-WLF-BLK-M", size: "M", stockQuantity: 4 },
-        { sku: "LOB-CAM-WLF-BLK-G", size: "G", stockQuantity: 3 },
-        { sku: "LOB-CAM-WLF-BLK-GG", size: "GG", stockQuantity: 1 },
-      ],
-    },
-    {
-      name: "Bermuda Cargo Streetwear Ripstop Caqui",
-      slug: "bermuda-cargo-streetwear-ripstop-caqui",
-      categoryId: getCatId("bermudas"),
-      description: "Bermuda cargo confeccionada em tecido Ripstop militar de alta resistência. Possui 6 bolsos funcionais, cós elástico com cordão de ajuste e costuras reforçadas.",
       originalPrice: 169.90,
-      price: 99.90,
       isOutletDiscount: true,
       featured: true,
-      images: [
-        "/products/bermuda-cargo-ripstop-caqui.jpg",
-      ],
+      modelInfo: "Atleta tem 1,80m, 78kg e veste tamanho G",
+      measurementsGuide: {
+        headers: ["size", "Torax (cm)", "Comprimento (cm)", "Manga (cm)"],
+        rows: [
+          { size: "P", "Torax (cm)": "50", "Comprimento (cm)": "69", "Manga (cm)": "22" },
+          { size: "M", "Torax (cm)": "53", "Comprimento (cm)": "72", "Manga (cm)": "23" },
+          { size: "G", "Torax (cm)": "56", "Comprimento (cm)": "75", "Manga (cm)": "24" },
+          { size: "GG", "Torax (cm)": "59", "Comprimento (cm)": "78", "Manga (cm)": "25" },
+          { size: "XG", "Torax (cm)": "62", "Comprimento (cm)": "81", "Manga (cm)": "26" },
+        ],
+      },
+      images: ["/products/manto-titular-maua.jpg"],
       variants: [
-        { sku: "LOB-BER-CRG-CAQ-P", size: "P (38)", stockQuantity: 2 },
-        { sku: "LOB-BER-CRG-CAQ-M", size: "M (40)", stockQuantity: 5 },
-        { sku: "LOB-BER-CRG-CAQ-G", size: "G (42)", stockQuantity: 2 },
-        { sku: "LOB-BER-CRG-CAQ-GG", size: "GG (44)", stockQuantity: 0 },
+        { sku: "TDM-TIT-P", size: "P", stockQuantity: 15 },
+        { sku: "TDM-TIT-M", size: "M", stockQuantity: 25 },
+        { sku: "TDM-TIT-G", size: "G", stockQuantity: 30 },
+        { sku: "TDM-TIT-GG", size: "GG", stockQuantity: 20 },
+        { sku: "TDM-TIT-XG", size: "XG", stockQuantity: 10 },
       ],
     },
     {
-      name: "Conjunto Moletom Streetwear Essential Off-White",
-      slug: "conjunto-moletom-streetwear-essential-off-white",
-      categoryId: getCatId("conjuntos"),
-      description: "Conjunto blusão canguru + bermuda de moletom 3 cabos flanelado. Conforto térmico, toque macio, capuz forrado e bolso frontal com acabamento de alfaiataria esportiva.",
-      originalPrice: 289.90,
-      price: 189.90,
+      name: "Manto Reserva 2026/27 — Blackout Ferrão",
+      slug: "manto-reserva-blackout-ferrao",
+      categorySlug: "mantos-de-jogo",
+      description: "Manto oficial nº 2 em edição especial Blackout. Fundo preto com textura favos de mel em sublimação premium e detalhes em amarelo ouro nos punhos e gola. Escudo monocromático com alto brilho. Elegância pura para dominar fora de casa.",
+      price: 139.90,
+      originalPrice: 169.90,
       isOutletDiscount: true,
       featured: true,
-      images: [
-        "/products/conjunto-moletom-essential-off-white.jpg",
-      ],
+      modelInfo: "Modelo tem 1,77m, 74kg e veste tamanho M",
+      measurementsGuide: {
+        headers: ["size", "Torax (cm)", "Comprimento (cm)"],
+        rows: [
+          { size: "P", "Torax (cm)": "50", "Comprimento (cm)": "69" },
+          { size: "M", "Torax (cm)": "53", "Comprimento (cm)": "72" },
+          { size: "G", "Torax (cm)": "56", "Comprimento (cm)": "75" },
+          { size: "GG", "Torax (cm)": "59", "Comprimento (cm)": "78" },
+          { size: "XG", "Torax (cm)": "62", "Comprimento (cm)": "81" },
+        ],
+      },
+      images: ["/products/manto-reserva-blackout.jpg"],
       variants: [
-        { sku: "LOB-CNJ-ESS-OFW-M", size: "M", stockQuantity: 3 },
-        { sku: "LOB-CNJ-ESS-OFW-G", size: "G", stockQuantity: 4 },
-        { sku: "LOB-CNJ-ESS-OFW-GG", size: "GG", stockQuantity: 2 },
+        { sku: "TDM-RES-P", size: "P", stockQuantity: 12 },
+        { sku: "TDM-RES-M", size: "M", stockQuantity: 22 },
+        { sku: "TDM-RES-G", size: "G", stockQuantity: 26 },
+        { sku: "TDM-RES-GG", size: "GG", stockQuantity: 18 },
+        { sku: "TDM-RES-XG", size: "XG", stockQuantity: 8 },
       ],
     },
     {
-      name: "Boné Trucker Lobos G Bordado Alto Relevo Preto",
-      slug: "bone-trucker-lobos-g-bordado-preto",
-      categoryId: getCatId("acessorios"),
-      description: "Boné modelo trucker americano com tela respirável traseira, copa estruturada, bordado frontal em alto relevo 3D e fecho ajustável snapback.",
-      originalPrice: 99.90,
-      price: 59.90,
+      name: "Manto de Goleiro 2026/27 — Guardião da Mauá",
+      slug: "manto-goleiro-guardiao-da-maua",
+      categorySlug: "mantos-de-jogo",
+      description: "A camisa oficial de paredão da Tropa da Mauá. Amarelo volt com grafismos agressivos em preto e tecnologia Dry Tech. Desenvolvida para máxima mobilidade e impacto visual nas traves.",
+      price: 149.90,
+      originalPrice: 179.90,
       isOutletDiscount: true,
       featured: false,
-      images: [
-        "/products/bone-trucker-preto.jpg",
-      ],
+      modelInfo: "Goleiro tem 1,86m, 84kg e veste tamanho GG",
+      images: ["/products/manto-goleiro-maua.jpg"],
       variants: [
-        { sku: "LOB-BON-TRK-BLK-U", size: "Único", stockQuantity: 12 },
+        { sku: "TDM-GOL-M", size: "M", stockQuantity: 8 },
+        { sku: "TDM-GOL-G", size: "G", stockQuantity: 12 },
+        { sku: "TDM-GOL-GG", size: "GG", stockQuantity: 10 },
       ],
     },
     {
-      name: "Camiseta Boxy Fit 'Acid Wash' Chumbo",
-      slug: "camiseta-boxy-fit-acid-wash-chumbo",
-      categoryId: getCatId("camisetas"),
-      description: "Lavagem especial acid wash estonada que confere efeito vintage exclusivo a cada peça. Corte boxy mais amplo e gola grossa de 3,5cm.",
-      originalPrice: 139.90,
+      name: "Camiseta Casual Torcida — 'Respeita o Ferrão'",
+      slug: "camiseta-torcida-respeita-o-ferrao",
+      categorySlug: "treino-torcida",
+      description: "Camiseta casual de torcida 100% algodão premium penteado fio 30.1. Modelagem streetwear confortável e estampa em serigrafia de alta definição com o mascote Abelha e o lema 'Respeita o Ferrão'. Vista na arquibancada ou no rolê.",
       price: 79.90,
+      originalPrice: 99.90,
       isOutletDiscount: true,
-      featured: false,
-      images: [
-        "/products/camiseta-boxy-acid-wash-chumbo.jpg",
-      ],
+      featured: true,
+      modelInfo: "Torcedor tem 1,75m, 72kg e veste tamanho M",
+      images: ["/products/camiseta-casual-torcida.jpg"],
       variants: [
-        { sku: "LOB-CAM-ACD-CHB-P", size: "P", stockQuantity: 3 },
-        { sku: "LOB-CAM-ACD-CHB-M", size: "M", stockQuantity: 5 },
-        { sku: "LOB-CAM-ACD-CHB-G", size: "G", stockQuantity: 2 },
+        { sku: "TDM-TSH-P", size: "P", stockQuantity: 15 },
+        { sku: "TDM-TSH-M", size: "M", stockQuantity: 25 },
+        { sku: "TDM-TSH-G", size: "G", stockQuantity: 30 },
+        { sku: "TDM-TSH-GG", size: "GG", stockQuantity: 20 },
+        { sku: "TDM-TSH-XG", size: "XG", stockQuantity: 10 },
       ],
     },
     {
-      name: "Tênis Streetwear Low Dunk Branco & Preto",
-      slug: "tenis-streetwear-low-dunk-branco-preto",
-      categoryId: getCatId("calcados"),
-      description: "Design clássico do basquete anos 80 reinventado para o streetwear. Cabedal em couro sintético premium, solado em borracha vulcanizada antiderrapante e palmilha conforto.",
-      originalPrice: 329.90,
-      price: 199.90,
+      name: "Corta-Vento Impermeável Mauá — Black & Yellow",
+      slug: "corta-vento-impermeavel-maua",
+      categorySlug: "agasalhos-calcoes",
+      description: "Jaqueta esportiva impermeável com capuz regulável, forro interno respirável e zíper tratorado em amarelo vibrante. O agasalho ideal para acompanhar a Tropa nas noites frias e jogos de mata-mata.",
+      price: 189.90,
+      originalPrice: 229.90,
       isOutletDiscount: true,
       featured: true,
-      images: [
-        "/products/tenis-low-dunk-branco-preto.jpg",
-      ],
+      modelInfo: "Modelo veste tamanho G",
+      images: ["/products/corta-vento-maua.jpg"],
       variants: [
-        { sku: "LOB-TEN-DNK-39", size: "39", stockQuantity: 1 },
-        { sku: "LOB-TEN-DNK-40", size: "40", stockQuantity: 3 },
-        { sku: "LOB-TEN-DNK-41", size: "41", stockQuantity: 2 },
-        { sku: "LOB-TEN-DNK-42", size: "42", stockQuantity: 2 },
+        { sku: "TDM-CVT-P", size: "P", stockQuantity: 10 },
+        { sku: "TDM-CVT-M", size: "M", stockQuantity: 18 },
+        { sku: "TDM-CVT-G", size: "G", stockQuantity: 20 },
+        { sku: "TDM-CVT-GG", size: "GG", stockQuantity: 12 },
+      ],
+    },
+    {
+      name: "Calção de Jogo Oficial 2026/27",
+      slug: "calcao-jogo-oficial-2026-maua",
+      categorySlug: "agasalhos-calcoes",
+      description: "Calção oficial de jogo confeccionado em tecido Dry Tech preto com faixas laterais amarelas e o escudo da Tropa da Mauá bordado. Cós anatômico e cordão de amarração reforçado.",
+      price: 59.90,
+      originalPrice: 79.90,
+      isOutletDiscount: true,
+      featured: false,
+      images: ["/products/calcao-jogo-preto.jpg"],
+      variants: [
+        { sku: "TDM-SHR-P", size: "P", stockQuantity: 15 },
+        { sku: "TDM-SHR-M", size: "M", stockQuantity: 25 },
+        { sku: "TDM-SHR-G", size: "G", stockQuantity: 30 },
+        { sku: "TDM-SHR-GG", size: "GG", stockQuantity: 20 },
+      ],
+    },
+    {
+      name: "Boné Trucker Mauá Bordado 3D",
+      slug: "bone-trucker-maua-bordado-3d",
+      categorySlug: "acessorios",
+      description: "Boné trucker clássico com aba curva, telinha preta traseira respirável e fechamento snapback ajustável. O escudo da Abelha é bordado na parte frontal em alto relevo 3D amarelo.",
+      price: 59.90,
+      originalPrice: 79.90,
+      isOutletDiscount: true,
+      featured: true,
+      images: ["/products/bone-trucker-maua.jpg"],
+      variants: [
+        { sku: "TDM-CAP-U", size: "Único", stockQuantity: 40 },
+      ],
+    },
+    {
+      name: "Copo Térmico 473ml Tropa da Mauá + Tirante",
+      slug: "copo-termico-473ml-tropa-da-maua-tirante",
+      categorySlug: "acessorios",
+      description: "Copo térmico em inox com acabamento preto fosco e gravação a laser da abelha e escudo da Tropa da Mauá. Mantém sua bebida trincando por horas. Acompanha tirante oficial com estampa exclusiva.",
+      price: 49.90,
+      originalPrice: 69.90,
+      isOutletDiscount: true,
+      featured: true,
+      images: ["/products/copo-termico-maua.jpg"],
+      variants: [
+        { sku: "TDM-CUP-U", size: "Único", stockQuantity: 50 },
+      ],
+    },
+    {
+      name: "Bandeirão Oficial Torcida (1,50m x 1,00m)",
+      slug: "bandeirao-oficial-torcida-maua",
+      categorySlug: "acessorios",
+      description: "Bandeira oficial da torcida em tecido Oxford de alta resistência. Amarela e preta com escudo gigante centralizado e ilhoses de metal reforçados para fixar no alambrado do campo.",
+      price: 69.90,
+      originalPrice: 89.90,
+      isOutletDiscount: true,
+      featured: false,
+      images: ["/products/bandeira-torcida-maua.jpg"],
+      variants: [
+        { sku: "TDM-BAN-U", size: "Único", stockQuantity: 25 },
       ],
     },
   ];
 
   for (const prod of products) {
-    const existing = await prisma.product.findUnique({ where: { slug: prod.slug } });
-    if (!existing) {
+    const existing = await prisma.product.findUnique({
+      where: { slug: prod.slug },
+      include: { images: true, variants: true },
+    });
+
+    if (existing) {
+      await prisma.product.update({
+        where: { id: existing.id },
+        data: {
+          name: prod.name,
+          categoryId: getCatId(prod.categorySlug),
+          description: prod.description,
+          price: prod.price,
+          originalPrice: prod.originalPrice,
+          isOutletDiscount: prod.isOutletDiscount,
+          featured: prod.featured,
+          active: true,
+          measurementsGuide: prod.measurementsGuide ?? undefined,
+        },
+      });
+
+      // Atualiza imagens
+      await prisma.productImage.deleteMany({ where: { productId: existing.id } });
+      await prisma.productImage.createMany({
+        data: prod.images.map((url, idx) => ({
+          productId: existing.id,
+          imageUrl: url,
+          altText: prod.name,
+          isMain: idx === 0,
+          displayOrder: idx + 1,
+        })),
+      });
+
+      console.log(`✓ Produto atualizado: ${prod.name}`);
+    } else {
       await prisma.product.create({
         data: {
           name: prod.name,
           slug: prod.slug,
-          categoryId: prod.categoryId,
+          categoryId: getCatId(prod.categorySlug),
           description: prod.description,
-          originalPrice: prod.originalPrice,
           price: prod.price,
+          originalPrice: prod.originalPrice,
           isOutletDiscount: prod.isOutletDiscount,
           featured: prod.featured,
+          measurementsGuide: prod.measurementsGuide ?? undefined,
           images: {
-            create: prod.images.map((img, idx) => ({
-              imageUrl: img,
+            create: prod.images.map((url, idx) => ({
+              imageUrl: url,
+              altText: prod.name,
               isMain: idx === 0,
               displayOrder: idx + 1,
             })),
@@ -393,37 +339,38 @@ async function main() {
     }
   }
 
-  await swapOldSeedPhotos();
+  // 5. Cupons da Tropa
+  const coupons = [
+    { code: "ENXAME10", discountType: "PERCENTAGE" as const, discountValue: 10.00, minOrderValue: 80.00 },
+    { code: "MAUA10", discountType: "PERCENTAGE" as const, discountValue: 10.00, minOrderValue: 100.00 },
+    { code: "PRIMEIRACOMPRA", discountType: "FIXED_AMOUNT" as const, discountValue: 15.00, minOrderValue: 120.00 },
+  ];
 
-  // 5. Cupom de Boas-Vindas
-  await prisma.coupon.upsert({
-    where: { code: "LOBOS10" },
-    update: {},
-    create: {
-      code: "LOBOS10",
-      discountType: "PERCENTAGE",
-      discountValue: 10.00,
-      minOrderValue: 100.00,
-      active: true,
-    },
-  });
-
-  // 6. Admin inicial: só cria se ADMIN_EMAIL e ADMIN_PASSWORD vierem do ambiente (nunca senha no git).
-  const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
-  const adminPassword = process.env.ADMIN_PASSWORD;
-  if (adminEmail && adminPassword) {
-    const exists = await prisma.adminUser.findUnique({ where: { email: adminEmail } });
-    if (!exists) {
-      await prisma.adminUser.create({
-        data: { name: "Administrador", email: adminEmail, passwordHash: hashPassword(adminPassword), role: "ADMIN" },
-      });
-      console.log(`✓ Admin criado: ${adminEmail}`);
-    }
-  } else {
-    console.log("⚠ ADMIN_EMAIL/ADMIN_PASSWORD não definidos: nenhum admin criado.");
+  for (const c of coupons) {
+    await prisma.coupon.upsert({
+      where: { code: c.code },
+      update: c,
+      create: { ...c, active: true },
+    });
   }
 
-  console.log("✅ Seed completo finalizado com sucesso!");
+  // 6. Admin inicial do Clube
+  const adminEmail = (process.env.ADMIN_EMAIL || "admin@tropadamaua.com.br").toLowerCase();
+  const adminPassword = process.env.ADMIN_PASSWORD || "maua2026";
+  const exists = await prisma.adminUser.findUnique({ where: { email: adminEmail } });
+  if (!exists) {
+    await prisma.adminUser.create({
+      data: {
+        name: "Diretoria Tropa da Mauá",
+        email: adminEmail,
+        passwordHash: hashPassword(adminPassword),
+        role: "ADMIN",
+      },
+    });
+    console.log(`✓ Admin criado: ${adminEmail} (senha: ${adminPassword})`);
+  }
+
+  console.log("🐝 Seed oficial da Tropa da Mauá finalizado com sucesso!");
 }
 
 main()

@@ -6,9 +6,9 @@ import { ProductModal } from "@/components/ProductModal";
 import { fontsHref, tailwindConfig } from "@/design/tokens";
 
 export const metadata: Metadata = {
-  title: "LOBUS Outlet | Streetwear & Grifes Importadas",
+  title: "Tropa da Mauá | Loja Oficial do Enxame",
   description:
-    "O melhor do streetwear e grifes importadas. Camisetas 40.1, polos, bermudas, moletons e sneakers originais com até 50% OFF no outlet.",
+    "Loja Oficial da Tropa da Mauá. Mantos de jogo titular e reserva, linha torcida, agasalhos e acessórios oficiais. Vista as cores do Enxame!",
 };
 
 const tailwindConfigScript = `tailwind.config=${JSON.stringify(tailwindConfig)}`;

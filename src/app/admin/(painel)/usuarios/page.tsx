@@ -7,7 +7,7 @@ import { AdminHead } from "@/components/admin/AdminHead";
 import { ROLE_ACCESS, ROLE_LABEL, initials, inputCls } from "@/components/admin/labels";
 import { ui } from "@/design/ui";
 
-export const metadata = { title: "Usuários | Painel LOBUS" };
+export const metadata = { title: "Usuários | Painel Tropa da Mauá" };
 
 const labelCls = "flex flex-col gap-1 font-body text-label-sm uppercase text-muted";
 // Faixa do crachá: só o Administrador leva dourado.
@@ -40,7 +40,7 @@ async function Users() {
         <ActionForm action={createUserAction} submitLabel="Emitir crachá" submitClassName={`${ui.btnPrimary} mt-auto`} className="border border-dashed border-stroke p-5 flex flex-col gap-3">
           <h2 className="font-display text-headline-md uppercase text-center mb-1">Novo usuário</h2>
           <label className={labelCls}>Nome<input name="name" required placeholder="Nome e sobrenome" className={inputCls} /></label>
-          <label className={labelCls}>E-mail<input name="email" type="email" required placeholder="nome@lobus.com.br" className={inputCls} /></label>
+          <label className={labelCls}>E-mail<input name="email" type="email" required placeholder="diretoria@tropadamaua.com.br" className={inputCls} /></label>
           <label className={labelCls}>Senha<input name="password" type="password" minLength={8} required autoComplete="new-password" placeholder="Mínimo 8 caracteres" className={inputCls} /></label>
           <fieldset className="flex flex-col gap-1.5">
             <legend className={`${labelCls} mb-1`}>Perfil · cor da faixa</legend>

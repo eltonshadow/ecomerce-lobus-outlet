@@ -10,29 +10,24 @@ import { ProductTag } from "@/components/ProductTag";
 import { ui } from "@/design/ui";
 import { useMe } from "@/hooks/useMe";
 
-const HERO_IMAGE =
-  "https://lh3.googleusercontent.com/aida-public/AB6AXuDZTomBBGoIEWyvG4K48gWd5UmTpjfJYmlaqL9dkvAmkb_pA1tY7llx5qOd4uhZwnkREEOV8ucYM1LN4siPI9Z9BJByx6tDli32CplosRaw5KdFuom4Djlgmn8pEYsMQZkwjvF65stjEne8zOt2khjWd9y1DvBHpCGFXxTjBPVem872CuFXnY8GCCDawYIlvxNMOIS6_4N8R1shoenGU6Wr8Lx514TlJTx_nNsCPUeO1ClQHVFsqXqo-g";
+const HERO_IMAGE = "/hero.jpg";
 
 const FILTERS: [slug: string, label: string][] = [
   ["todos", "Todos"],
-  ["camisetas", "Camisetas"],
-  ["polos", "Polos"],
-  ["bermudas", "Bermudas"],
-  ["moletons-jaquetas", "Moletons & Jaquetas"],
-  ["conjuntos", "Conjuntos"],
-  ["calcados", "Calçados"],
+  ["mantos-de-jogo", "Mantos de Jogo"],
+  ["treino-torcida", "Treino & Torcida"],
+  ["agasalhos-calcoes", "Agasalhos & Calções"],
   ["acessorios", "Acessórios"],
 ];
 
 const NAV: [slug: string, label: string][] = [
-  ["camisetas", "Camisetas"],
-  ["bermudas", "Bermudas"],
-  ["polos", "Polos"],
-  ["calcados", "Calçados"],
+  ["mantos-de-jogo", "Mantos de Jogo"],
+  ["treino-torcida", "Linha Torcida"],
+  ["agasalhos-calcoes", "Agasalhos"],
   ["acessorios", "Acessórios"],
 ];
 
-const BAND = "Outlet de grifes — Moda masculina — Goiânia — ";
+const BAND = "TROPA DA MAUÁ • O ENXAME DA QUEBRADA • TRADIÇÃO & RAÇA NA VÁRZEA • MANTO SAGRADO • RESPEITA O FERRÃO • ";
 
 export default function Home() {
   const { totalItems, setIsCartOpen, setActiveProductModal } = useCart();
@@ -72,13 +67,17 @@ export default function Home() {
   return (
     <>
       <div className="border-b border-line py-2.5 px-4 text-center font-body text-label-sm uppercase text-muted">
-        Frete grátis acima de R$ 299 · Retirada na loja, {PICKUP_STORE_INFO.neighborhood}, Goiânia
+        Frete grátis acima de R$ 249 · Retirada na {PICKUP_STORE_INFO.neighborhood} em dias de jogo e entrega expressa
       </div>
 
       <header className="sticky top-0 z-40 bg-ink/95 backdrop-blur border-b border-line">
         <div className={`${ui.container} py-3 flex flex-wrap items-center justify-between gap-x-6 gap-y-3`}>
-          <Link href="/" aria-label="LOBUS Outlet, início" className="shrink-0">
-            <img src="/logo.png" alt="LOBUS Outlet" className="h-16 lg:h-20 w-auto" />
+          <Link href="/" aria-label="Tropa da Mauá, início" className="shrink-0 flex items-center gap-3">
+            <img src="/logo.png" alt="Tropa da Mauá Oficial" className="h-14 lg:h-16 w-auto" />
+            <div className="hidden sm:block">
+              <span className="block font-display text-2xl tracking-wider uppercase text-paper leading-none">TROPA DA MAUÁ</span>
+              <span className="block font-mono text-[10px] uppercase text-gold tracking-widest mt-0.5">LOJA DO ENXAME</span>
+            </div>
           </Link>
           <nav aria-label="Categorias" className="flex flex-wrap gap-x-6 gap-y-2 order-3 w-full lg:order-none lg:w-auto">
             {NAV.map(([slug, label]) => (
@@ -87,7 +86,7 @@ export default function Home() {
               </a>
             ))}
             <a href="#vitrine" onClick={goCategory("todos")} className={`${ui.navLink} text-gold`}>
-              Outlet
+              Todos
             </a>
           </nav>
           <div className="flex items-center gap-5">
@@ -118,40 +117,40 @@ export default function Home() {
       <main className="flex-1">
         <section className={`${ui.container} pt-6 flex flex-wrap gap-10`}>
           <div className="flex-[1_1_480px] min-w-0 flex flex-col justify-between gap-9 py-6">
-            <p className={ui.eyebrow}>Drop Blackout · Moda masculina</p>
+            <p className={ui.eyebrow}>Coleção Oficial 2026/27 · Tropa da Mauá</p>
             <h1 className={ui.heroTitle}>
-              Grife
+              Manto
               <br />
-              de verdade.
+              Sagrado.
               <br />
-              <span className="text-gold">Preço</span>
+              <span className="text-gold">A Força</span>
               <br />
-              de outlet.
+              do Enxame.
             </h1>
             <div className="flex flex-wrap items-end justify-between gap-6">
               <p className="max-w-[360px] text-body-lg text-[#CFC9BC]">
-                Streetwear e peças de grife selecionadas em Goiânia. Peça pelo site e retire na loja ou receba por motoboy.
+                O manto mais temido da várzea. Peça seu uniforme oficial ou peças de torcida e retire no campo ou receba por motoboy.
               </p>
               <a href="#vitrine" onClick={goCategory("todos")} className={`${ui.btnPrimary} min-h-[56px]`}>
-                Ver o drop
+                Ver os Mantos
               </a>
             </div>
           </div>
           <div className="flex-[1_1_480px] min-w-0 h-[clamp(420px,60vw,760px)] overflow-hidden">
-            <img src={HERO_IMAGE} alt="Modelo com camiseta preta oversized e correntes douradas" className="w-full h-full object-cover object-[50%_25%]" />
+            <img src={HERO_IMAGE} alt="Manto Oficial Tropa da Mauá - O Enxame" className="w-full h-full object-cover object-[50%_25%]" />
           </div>
         </section>
 
         <div aria-hidden="true" className="mt-[72px] border-y border-line py-[18px] overflow-hidden whitespace-nowrap font-display text-[clamp(36px,5vw,56px)] leading-none uppercase text-ghost">
-          <span className="inline-block animate-[lobus-band_40s_linear_infinite] motion-reduce:animate-none">{BAND.repeat(8)}</span>
+          <span className="inline-block animate-[maua-band_40s_linear_infinite] motion-reduce:animate-none">{BAND.repeat(8)}</span>
         </div>
 
         <section id="vitrine" className={`${ui.container} pt-20 scroll-mt-28`}>
           <div className="flex flex-wrap items-end justify-between gap-4 mb-6">
-            <h2 className={ui.sectionTitle}>Em estoque agora</h2>
+            <h2 className={ui.sectionTitle}>Mantos & Acessórios</h2>
             <label className="md:hidden w-full">
               <span className="sr-only">Buscar produtos</span>
-              <input type="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Buscar peça" className={ui.input} />
+              <input type="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Buscar manto ou acessório" className={ui.input} />
             </label>
           </div>
           <div className="flex flex-wrap gap-2 mb-9" role="group" aria-label="Filtrar por categoria">
@@ -179,8 +178,8 @@ export default function Home() {
               {loadError
                 ? "Não foi possível carregar o catálogo agora. Recarregue a página."
                 : q
-                  ? `Nenhuma peça encontrada para "${query.trim()}".`
-                  : "Nenhuma peça disponível nesta categoria no momento."}
+                  ? `Nenhum item encontrado para "${query.trim()}".`
+                  : "Nenhum item disponível nesta categoria no momento."}
             </p>
           ) : (
             <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,270px),1fr))] gap-6">
@@ -194,8 +193,8 @@ export default function Home() {
         <section className={`${ui.container} pt-24 flex flex-wrap gap-6`}>
           {(
             [
-              ["polos", "Polos de grife"],
-              ["bermudas", "Bermudas & jeans"],
+              ["mantos-de-jogo", "Mantos Oficiais"],
+              ["acessorios", "Acessórios da Torcida"],
             ] as const
           ).map(([slug, label]) => (
             <a key={slug} href="#vitrine" onClick={goCategory(slug)} className="group relative flex-[1_1_380px] min-w-0 h-[420px] overflow-hidden bg-surface-container">
@@ -209,20 +208,20 @@ export default function Home() {
       </main>
 
       <footer className={`${ui.container} pt-24 pb-12`}>
-        <div aria-hidden="true" className="font-display text-[clamp(110px,22vw,320px)] leading-[0.8] uppercase text-transparent [-webkit-text-stroke:1px_#4A463E]">
-          Lobus
+        <div aria-hidden="true" className="font-display text-[clamp(70px,14vw,220px)] leading-[0.8] uppercase text-transparent [-webkit-text-stroke:1px_#3E3A2A]">
+          Tropa da Mauá
         </div>
         <div className="mt-8 flex flex-wrap justify-between gap-x-6 gap-y-4 font-body text-body-sm tracking-[0.06em] text-muted">
-          <span>Loja física · {PICKUP_STORE_INFO.address}</span>
-          <span>Entrega por motoboy em Goiânia e Aparecida de Goiânia · Pagamento via Pix</span>
+          <span>{PICKUP_STORE_INFO.name} · {PICKUP_STORE_INFO.address}</span>
+          <span>Entrega por motoboy e envio expresso · Pagamento instantâneo via Pix</span>
           <span className="flex flex-wrap gap-5">
             <Link href="/pedido" className="hover:text-gold">
               Meu pedido
             </Link>
-            <a href={whatsApp("Olá! Quero saber sobre trocas e devoluções da LOBUS Outlet.")} target="_blank" rel="noopener noreferrer" className="hover:text-gold">
+            <a href={whatsApp("Olá! Quero saber sobre trocas e pedidos da Tropa da Mauá.")} target="_blank" rel="noopener noreferrer" className="hover:text-gold">
               Trocas
             </a>
-            <a href={whatsApp("Olá! Vim pelo site da LOBUS Outlet e quero atendimento.")} target="_blank" rel="noopener noreferrer" className="hover:text-gold">
+            <a href={whatsApp("Olá! Vim pela Loja Oficial da Tropa da Mauá e quero atendimento.")} target="_blank" rel="noopener noreferrer" className="hover:text-gold">
               WhatsApp
             </a>
           </span>

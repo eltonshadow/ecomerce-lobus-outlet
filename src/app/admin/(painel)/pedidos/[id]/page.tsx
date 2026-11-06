@@ -8,7 +8,7 @@ import { changeOrderStatusAction } from "@/actions/admin";
 import { ActionForm } from "@/components/admin/ActionForm";
 import { STATUS_LABEL, PAYMENT_LABEL, brl, dateTime } from "@/components/admin/labels";
 
-export const metadata = { title: "Pedido | Painel LOBUS" };
+export const metadata = { title: "Pedido | Painel Tropa da Mauá" };
 
 const ACTION_LABEL: Record<string, string> = {
   PAID: "Marcar como pago",

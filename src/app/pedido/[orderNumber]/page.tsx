@@ -30,7 +30,7 @@ async function OrderDetails({ params }: Params) {
   const order = await getPublicOrder(decodeURIComponent(orderNumber));
   if (!order) notFound();
 
-  const whatsappText = encodeURIComponent(`Olá! Sou ${order.firstName}, meu pedido na LOBUS Outlet é o ${order.orderNumber}.`);
+  const whatsappText = encodeURIComponent(`Olá! Sou ${order.firstName}, meu pedido na Tropa da Mauá é o ${order.orderNumber}.`);
   const expiresAt = order.pixExpiresAt ? new Date(order.pixExpiresAt) : null;
   const expiresLabel = expiresAt
     ? expiresAt.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: "America/Sao_Paulo" })

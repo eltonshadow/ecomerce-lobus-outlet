@@ -7,7 +7,7 @@ import { AdminHead } from "@/components/admin/AdminHead";
 import { brl, inputCls } from "@/components/admin/labels";
 import { ui } from "@/design/ui";
 
-export const metadata = { title: "Cupons | Painel LOBUS" };
+export const metadata = { title: "Cupons | Painel Tropa da Mauá" };
 
 const num = (v: { toString(): string }) => Number(v).toLocaleString("pt-BR", { maximumFractionDigits: 2 });
 const day = (d: Date) => d.toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" });

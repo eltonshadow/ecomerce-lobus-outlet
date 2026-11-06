@@ -41,7 +41,7 @@ export function ProductModal() {
   };
 
   const whatsappMessage = encodeURIComponent(
-    `Olá! Tenho uma dúvida sobre a peça "${product.name}" (Tamanho ${currentSize || "M"}) da LOBUS Outlet.`
+    `Olá! Tenho uma dúvida sobre "${product.name}" (Tamanho ${currentSize || "M"}) da Loja Oficial Tropa da Mauá.`
   );
 
   return (
@@ -232,7 +232,7 @@ export function ProductModal() {
               <div className="grid grid-cols-2 gap-2 text-[10px] text-zinc-400 pt-1">
                 <span className="flex items-center gap-1">
                   <Truck className="w-3.5 h-3.5 text-amber-400" />
-                  Motoboy hoje em Goiânia
+                  Retirada no campo ou motoboy
                 </span>
                 <span className="flex items-center gap-1">
                   <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />

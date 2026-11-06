@@ -8,7 +8,7 @@ import { RegisterForm } from "../AuthForms";
 
 type Props = { searchParams: Promise<{ next?: string }> };
 
-export const metadata = { title: "Criar conta | LOBUS Outlet" };
+export const metadata = { title: "Criar conta | Tropa da Mauá" };
 
 export default function CadastroPage({ searchParams }: Props) {
   return (

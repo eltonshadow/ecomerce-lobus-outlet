@@ -4,8 +4,8 @@ import { redirect } from "next/navigation";
 import type { AdminRole } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 
-export const SESSION_COOKIE = "lobus_admin";
-export const CUSTOMER_COOKIE = "lobus_cliente";
+export const SESSION_COOKIE = "maua_admin";
+export const CUSTOMER_COOKIE = "maua_cliente";
 const CUSTOMER_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 dias
 const SESSION_TTL_MS = 8 * 60 * 60 * 1000; // 8h
 

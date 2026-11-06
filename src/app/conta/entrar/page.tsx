@@ -9,7 +9,7 @@ import { LoginForm } from "../AuthForms";
 
 type Props = { searchParams: Promise<{ next?: string }> };
 
-export const metadata = { title: "Entrar | LOBUS Outlet" };
+export const metadata = { title: "Entrar | Tropa da Mauá" };
 
 export default function EntrarPage({ searchParams }: Props) {
   return (

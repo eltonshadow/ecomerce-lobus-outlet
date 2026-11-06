@@ -29,8 +29,8 @@ interface CartContextType {
   };
 }
 
-// v2: carrinhos antigos guardavam ids de produtos mock, que não existem no banco.
-const CART_KEY = "lobus_cart_v2";
+// v1: armazenamento local exclusivo da Tropa da Mauá
+const CART_KEY = "tropadamaua_cart_v1";
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
