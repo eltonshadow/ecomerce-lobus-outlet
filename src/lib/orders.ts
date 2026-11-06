@@ -2,8 +2,11 @@ import { randomBytes } from "node:crypto";
 import { Prisma, type OrderStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { isValidCpf } from "@/lib/cpf";
+import { infinitePayEnabled } from "@/lib/infinitepay";
 
 export const PIX_TTL_MS = 20 * 60 * 1000;
+// Link da InfinitePay tem cartão e 3DS: um pouco mais de tempo para pagar.
+const LINK_TTL_MS = 30 * 60 * 1000;
 
 export type CheckoutItemInput = { variantId: string; quantity: number };
 
@@ -25,6 +28,9 @@ export type Quote = {
 };
 
 export class CheckoutError extends Error {}
+
+// Foto principal do produto de cada item (pedido guarda só o snapshot do nome).
+export const ITEM_IMAGE = { variant: { select: { product: { select: { images: { orderBy: { displayOrder: "asc" as const }, take: 1, select: { imageUrl: true } } } } } } };
 
 const round2 = (n: number) => Math.round(n * 100) / 100;
 const onlyDigits = (s: string) => s.replace(/\D/g, "");
@@ -177,10 +183,11 @@ export async function createOrder(input: CreateOrderInput, customerId: string | 
         couponId: q.couponId,
         customerId,
         paymentMethod: "PIX",
-        pixCopyPaste: fakePixCopyPaste(orderNumber, q.total),
-        pixExpiresAt: new Date(Date.now() + PIX_TTL_MS),
+        pixCopyPaste: infinitePayEnabled() ? null : fakePixCopyPaste(orderNumber, q.total),
+        pixExpiresAt: new Date(Date.now() + (infinitePayEnabled() ? LINK_TTL_MS : PIX_TTL_MS)),
         items: { create: q.lines.map(({ variantId, productName, sku, size, colorName, quantity, unitPrice, totalPrice }) => ({ variantId, productName, sku, size, colorName, quantity, unitPrice, totalPrice })) },
       },
+      include: { items: true },
     });
   });
 }

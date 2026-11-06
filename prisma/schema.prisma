@@ -15,8 +15,8 @@ datasource db {
 // ------------------------------------------------------
 
 enum AdminRole {
-  ADMIN       // Acesso total (configurações, taxas, produtos, relatórios)
-  EXPEDICAO   // Gestão de pedidos, separação e envio de motoboy
+  ADMIN // Acesso total (configurações, taxas, produtos, relatórios)
+  EXPEDICAO // Gestão de pedidos, separação e envio de motoboy
   ATENDIMENTO // Consulta de pedidos e suporte a clientes
 }
 
@@ -39,52 +39,76 @@ model AdminUser {
 
 // Cliente da loja (conta opcional: checkout como convidado continua funcionando)
 model Customer {
-  id           String   @id @default(uuid())
+  id           String            @id @default(uuid())
   name         String
-  email        String   @unique
-  phone        String   // WhatsApp com DDD, só dígitos
-  cpf          String   // só dígitos, validado
+  email        String            @unique
+  phone        String // WhatsApp com DDD, só dígitos
+  cpf          String // só dígitos, validado
   passwordHash String
-  active       Boolean  @default(true)
+  birthDate    DateTime?         @db.Date
+  active       Boolean           @default(true)
   orders       Order[]
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  addresses    CustomerAddress[]
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
 
   @@map("customers")
 }
 
+// Endereços salvos do cliente. Um deles é o padrão (pré-selecionado no checkout).
+model CustomerAddress {
+  id           String   @id @default(uuid())
+  customerId   String
+  customer     Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  label        String // "Casa", "Trabalho"
+  cep          String // só dígitos
+  street       String
+  number       String
+  complement   String?
+  neighborhood String
+  city         String
+  state        String
+  reference    String? // ponto de referência para o motoboy
+  isDefault    Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([customerId])
+  @@map("customer_addresses")
+}
+
 model Category {
-  id          String    @id @default(uuid())
-  name        String
-  slug        String    @unique
-  description String?
-  imageUrl    String?
-  displayOrder Int      @default(0)
-  active      Boolean   @default(true)
-  products    Product[]
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id           String    @id @default(uuid())
+  name         String
+  slug         String    @unique
+  description  String?
+  imageUrl     String?
+  displayOrder Int       @default(0)
+  active       Boolean   @default(true)
+  products     Product[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
   @@map("categories")
 }
 
 model Product {
-  id                 String           @id @default(uuid())
-  categoryId         String
-  category           Category         @relation(fields: [categoryId], references: [id])
-  name               String
-  slug               String           @unique
-  description        String?          @db.Text
-  originalPrice      Decimal?         @db.Decimal(10, 2) // Preço "De" (riscado)
-  price              Decimal          @db.Decimal(10, 2) // Preço "Por" atual de venda
-  isOutletDiscount   Boolean          @default(false)
-  measurementsGuide  Json?            // Tabela com medidas (cm): busto, cintura, altura etc.
-  featured           Boolean          @default(false)
-  active             Boolean          @default(true)
-  images             ProductImage[]
-  variants           ProductVariant[]
-  createdAt          DateTime         @default(now())
-  updatedAt          DateTime         @updatedAt
+  id                String           @id @default(uuid())
+  categoryId        String
+  category          Category         @relation(fields: [categoryId], references: [id])
+  name              String
+  slug              String           @unique
+  description       String?          @db.Text
+  originalPrice     Decimal?         @db.Decimal(10, 2) // Preço "De" (riscado)
+  price             Decimal          @db.Decimal(10, 2) // Preço "Por" atual de venda
+  isOutletDiscount  Boolean          @default(false)
+  measurementsGuide Json? // Tabela com medidas (cm): busto, cintura, altura etc.
+  featured          Boolean          @default(false)
+  active            Boolean          @default(true)
+  images            ProductImage[]
+  variants          ProductVariant[]
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
 
   @@index([categoryId])
   @@index([active])
@@ -110,12 +134,12 @@ model ProductVariant {
   productId     String
   product       Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
   sku           String      @unique // Ex: LOB-CAM-OVZ-BLK-G
-  size          String      // P, M, G, GG, XG, 38, 40, etc.
-  colorName     String?     // Preto, Branco, Mescla, etc.
-  colorHex      String?     // Código hexadecimal para bolinha visual (#000000)
+  size          String // P, M, G, GG, XG, 38, 40, etc.
+  colorName     String? // Preto, Branco, Mescla, etc.
+  colorHex      String? // Código hexadecimal para bolinha visual (#000000)
   stockQuantity Int         @default(0)
   priceOverride Decimal?    @db.Decimal(10, 2) // Caso algum tamanho especial tenha preço diferente
-  barcode       String?     // Código EAN/Barras se houver
+  barcode       String? // Código EAN/Barras se houver
   orderItems    OrderItem[]
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
@@ -130,21 +154,21 @@ model ProductVariant {
 // ------------------------------------------------------
 
 enum DeliveryMethod {
-  PICKUP   // Retirada no balcão da loja física (Jardim Novo Mundo)
-  MOTOBOY  // Entrega expressa por motoboy regional
+  PICKUP // Retirada no balcão da loja física (Jardim Novo Mundo)
+  MOTOBOY // Entrega expressa por motoboy regional
 }
 
 model DeliveryZone {
-  id                    String   @id @default(uuid())
-  name                  String   // Ex: "Região Leste / Jardim Novo Mundo", "Goiânia Central", "Aparecida"
-  cepPrefixes           String[] // Lista de prefixos de CEP atendidos (ex: ["74703", "74705", "74710"])
-  neighborhoods         String[] // Nomes de bairros inclusos
-  deliveryFee           Decimal  @db.Decimal(10, 2) // Taxa de entrega fixa (ex: R$ 12.00)
-  estimatedDeliveryHours Int     @default(24)       // Prazo estimado em horas
-  freeShippingAbove     Decimal? @db.Decimal(10, 2) // Valor mínimo de pedido para frete grátis
-  active                Boolean  @default(true)
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
+  id                     String   @id @default(uuid())
+  name                   String // Ex: "Região Leste / Jardim Novo Mundo", "Goiânia Central", "Aparecida"
+  cepPrefixes            String[] // Lista de prefixos de CEP atendidos (ex: ["74703", "74705", "74710"])
+  neighborhoods          String[] // Nomes de bairros inclusos
+  deliveryFee            Decimal  @db.Decimal(10, 2) // Taxa de entrega fixa (ex: R$ 12.00)
+  estimatedDeliveryHours Int      @default(24) // Prazo estimado em horas
+  freeShippingAbove      Decimal? @db.Decimal(10, 2) // Valor mínimo de pedido para frete grátis
+  active                 Boolean  @default(true)
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
 
   @@map("delivery_zones")
 }
@@ -152,9 +176,9 @@ model DeliveryZone {
 model PickupPoint {
   id           String   @id @default(uuid())
   name         String   @default("Loja Física - Lobos G Outlet")
-  address      String   // Rua, número, bairro, cidade, CEP
-  openingHours String   // Ex: "Seg a Sex: 09h às 19h | Sáb: 09h às 15h"
-  instructions String?  // "Apresentar o código do pedido no balcão de retirada"
+  address      String // Rua, número, bairro, cidade, CEP
+  openingHours String // Ex: "Seg a Sex: 09h às 19h | Sáb: 09h às 15h"
+  instructions String? // "Apresentar o código do pedido no balcão de retirada"
   active       Boolean  @default(true)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
@@ -167,13 +191,13 @@ model PickupPoint {
 // ------------------------------------------------------
 
 enum OrderStatus {
-  PENDING           // Aguardando confirmação do pagamento
-  PAID              // Pagamento aprovado, pronto para separação
-  PREPARING         // Em separação / embalagem no estoque
-  READY_FOR_PICKUP  // Pronto para retirada pelo cliente no balcão
-  OUT_FOR_DELIVERY  // Em rota com o motoboy
-  DELIVERED         // Pedido entregue ao cliente
-  CANCELLED         // Cancelado (falta de pagamento ou devolução)
+  PENDING // Aguardando confirmação do pagamento
+  PAID // Pagamento aprovado, pronto para separação
+  PREPARING // Em separação / embalagem no estoque
+  READY_FOR_PICKUP // Pronto para retirada pelo cliente no balcão
+  OUT_FOR_DELIVERY // Em rota com o motoboy
+  DELIVERED // Pedido entregue ao cliente
+  CANCELLED // Cancelado (falta de pagamento ou devolução)
 }
 
 enum PaymentMethod {
@@ -189,54 +213,65 @@ enum PaymentStatus {
 }
 
 model Order {
-  id                    String         @id @default(uuid())
-  orderNumber           String         @unique // Formato amigável: LOB-1001
-  status                OrderStatus    @default(PENDING)
-  
+  id          String      @id @default(uuid())
+  orderNumber String      @unique // Formato amigável: LOB-1001
+  status      OrderStatus @default(PENDING)
+
   // Dados do Cliente
-  customerName          String
-  customerEmail         String
-  customerPhone         String         // WhatsApp com DDD (essencial para entrega e avisos)
-  customerCpf           String
-  
+  customerName  String
+  customerEmail String
+  customerPhone String // WhatsApp com DDD (essencial para entrega e avisos)
+  customerCpf   String
+
   // Modalidade de Entrega
-  deliveryMethod        DeliveryMethod
-  deliveryFee           Decimal        @default(0.00) @db.Decimal(10, 2)
-  deliveryZoneName      String?
-  
+  deliveryMethod   DeliveryMethod
+  deliveryFee      Decimal        @default(0.00) @db.Decimal(10, 2)
+  deliveryZoneName String?
+
   // Endereço (obrigatório se for MOTOBOY)
-  shippingCep           String?
-  shippingStreet        String?
-  shippingNumber        String?
-  shippingComplement    String?
-  shippingNeighborhood  String?
-  shippingCity          String?        @default("Goiânia")
-  shippingState         String?        @default("GO")
-  deliveryNotes         String?        // Ponto de referência / Instruções para o motoboy
-  
+  shippingCep          String?
+  shippingStreet       String?
+  shippingNumber       String?
+  shippingComplement   String?
+  shippingNeighborhood String?
+  shippingCity         String? @default("Goiânia")
+  shippingState        String? @default("GO")
+  deliveryNotes        String? // Ponto de referência / Instruções para o motoboy
+
   // Valores do Pedido
-  subtotal              Decimal        @db.Decimal(10, 2)
-  discountValue         Decimal        @default(0.00) @db.Decimal(10, 2)
-  total                 Decimal        @db.Decimal(10, 2)
-  
+  subtotal      Decimal @db.Decimal(10, 2)
+  discountValue Decimal @default(0.00) @db.Decimal(10, 2)
+  total         Decimal @db.Decimal(10, 2)
+
   // Pagamento
-  paymentMethod         PaymentMethod
-  paymentStatus         PaymentStatus  @default(PENDING)
-  paymentGatewayId      String?        // ID da transação no Mercado Pago / Asaas
-  pixQrCode             String?        @db.Text
-  pixCopyPaste          String?        @db.Text
-  pixExpiresAt          DateTime?
-  paidAt                DateTime?
+  paymentMethod    PaymentMethod
+  paymentStatus    PaymentStatus @default(PENDING)
+  paymentGatewayId String? // ID da transação no Mercado Pago / Asaas
+  pixQrCode        String?       @db.Text
+  pixCopyPaste     String?       @db.Text
+  pixExpiresAt     DateTime? // fim da reserva das peças (Pix simulado ou link InfinitePay)
+  paidAt           DateTime?
+
+  // InfinitePay (Checkout Integrado). Preenchidos pelo link, webhook e payment_check.
+  checkoutUrl    String?
+  invoiceSlug    String?
+  transactionNsu String?
+  captureMethod  String? // "pix" | "credit_card"
+  installments   Int?
+  paidAmount     Decimal?  @db.Decimal(10, 2) // o que o cliente pagou (inclui juros repassados)
+  receiptUrl     String?
+  webhookAt      DateTime? // último aviso de pagamento recebido
+  refundedAt     DateTime?
 
   // Cupom
-  couponId              String?
-  coupon                Coupon?        @relation(fields: [couponId], references: [id])
-  customerId            String?        // preenchido quando o pedido é feito logado
-  customer              Customer?      @relation(fields: [customerId], references: [id])
-  
-  items                 OrderItem[]
-  createdAt             DateTime       @default(now())
-  updatedAt             DateTime       @updatedAt
+  couponId   String?
+  coupon     Coupon?   @relation(fields: [couponId], references: [id])
+  customerId String? // preenchido quando o pedido é feito logado
+  customer   Customer? @relation(fields: [customerId], references: [id])
+
+  items     OrderItem[]
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
 
   @@index([orderNumber])
   @@index([status])
@@ -246,18 +281,18 @@ model Order {
 }
 
 model OrderItem {
-  id              String         @id @default(uuid())
-  orderId         String
-  order           Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  variantId       String
-  variant         ProductVariant @relation(fields: [variantId], references: [id])
-  productName     String         // Snapshot do nome no momento da compra
-  sku             String         // Snapshot do SKU
-  size            String         // Snapshot do tamanho
-  colorName       String?        // Snapshot da cor
-  quantity        Int
-  unitPrice       Decimal        @db.Decimal(10, 2)
-  totalPrice      Decimal        @db.Decimal(10, 2)
+  id          String         @id @default(uuid())
+  orderId     String
+  order       Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  variantId   String
+  variant     ProductVariant @relation(fields: [variantId], references: [id])
+  productName String // Snapshot do nome no momento da compra
+  sku         String // Snapshot do SKU
+  size        String // Snapshot do tamanho
+  colorName   String? // Snapshot da cor
+  quantity    Int
+  unitPrice   Decimal        @db.Decimal(10, 2)
+  totalPrice  Decimal        @db.Decimal(10, 2)
 
   @@index([orderId])
   @@map("order_items")
@@ -273,18 +308,18 @@ enum DiscountType {
 }
 
 model Coupon {
-  id             String       @id @default(uuid())
-  code           String       @unique // Ex: LOBOS10, PRIMEIRACOMPRA
-  discountType   DiscountType @default(PERCENTAGE)
-  discountValue  Decimal      @db.Decimal(10, 2)
-  minOrderValue  Decimal?     @db.Decimal(10, 2)
-  maxUses        Int?
-  usedCount      Int          @default(0)
-  validUntil     DateTime?
-  active         Boolean      @default(true)
-  orders         Order[]
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+  id            String       @id @default(uuid())
+  code          String       @unique // Ex: LOBOS10, PRIMEIRACOMPRA
+  discountType  DiscountType @default(PERCENTAGE)
+  discountValue Decimal      @db.Decimal(10, 2)
+  minOrderValue Decimal?     @db.Decimal(10, 2)
+  maxUses       Int?
+  usedCount     Int          @default(0)
+  validUntil    DateTime?
+  active        Boolean      @default(true)
+  orders        Order[]
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
 
   @@map("coupons")
 }

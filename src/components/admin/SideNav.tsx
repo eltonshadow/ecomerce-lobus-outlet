@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 // Links da sidebar do painel; precisa do pathname para marcar o item ativo.
-export function SideNav({ links, actionCount }: { links: { href: string; label: string }[]; actionCount: number }) {
+export function SideNav({ links }: { links: { href: string; label: string; count?: number }[] }) {
   const path = usePathname();
   const isOn = (href: string) => (href === "/admin" ? path === "/admin" || path.startsWith("/admin/pedidos") : path.startsWith(href));
   return (
@@ -21,9 +21,9 @@ export function SideNav({ links, actionCount }: { links: { href: string; label: 
             }`}
           >
             {l.label}
-            {l.href === "/admin" && actionCount > 0 && (
-              <span title="Pagos esperando separação ou em separação" className="min-w-6 h-6 px-1.5 inline-flex items-center justify-center bg-gold text-ink font-mono text-label-sm">
-                {actionCount}
+            {!!l.count && (
+              <span title={l.href === "/admin" ? "Pagos esperando separação ou em separação" : "Pagamentos para conferir"} className="min-w-6 h-6 px-1.5 inline-flex items-center justify-center bg-gold text-ink font-mono text-label-sm">
+                {l.count}
               </span>
             )}
           </Link>

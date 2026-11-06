@@ -32,9 +32,9 @@ export const inputCls =
 
 // O que cada perfil abre no painel (espelha os requireAdmin das páginas).
 export const ROLE_ACCESS: Record<string, { label: string; on: boolean }[]> = {
-  ADMIN: [{ label: "Pedidos", on: true }, { label: "Produtos: cria e edita", on: true }, { label: "Cupons", on: true }, { label: "Usuários", on: true }],
-  EXPEDICAO: [{ label: "Pedidos", on: true }, { label: "Produtos: preço, estoque, ativo", on: true }, { label: "Cupons", on: false }, { label: "Usuários", on: false }],
-  ATENDIMENTO: [{ label: "Pedidos", on: true }, { label: "Produtos", on: false }, { label: "Cupons", on: false }, { label: "Usuários", on: false }],
+  ADMIN: [{ label: "Pedidos", on: true }, { label: "Pagamentos", on: true }, { label: "Produtos: cria e edita", on: true }, { label: "Cupons", on: true }, { label: "Usuários", on: true }],
+  EXPEDICAO: [{ label: "Pedidos", on: true }, { label: "Pagamentos", on: false }, { label: "Produtos: preço, estoque, ativo", on: true }, { label: "Cupons", on: false }, { label: "Usuários", on: false }],
+  ATENDIMENTO: [{ label: "Pedidos", on: true }, { label: "Pagamentos", on: false }, { label: "Produtos", on: false }, { label: "Cupons", on: false }, { label: "Usuários", on: false }],
 };
 
 // Próxima etapa do fluxo feliz, a partir do status e do tipo de entrega. Cancelar fica no detalhe do pedido.
