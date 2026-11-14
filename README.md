@@ -1,36 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+[README.md](https://github.com/user-attachments/files/34863314/README.md)
+# LOBUS Outlet — E-commerce
 
-## Getting Started
+Loja virtual de moda masculina (streetwear e grifes) desenvolvida sob demanda para a LOBUS Outlet, em Goiânia/GO. O projeto inclui a vitrine para o cliente e um painel administrativo para gestão da loja.
 
-First, run the development server:
+## Funcionalidades
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- Catálogo de produtos organizado por categorias
+- Busca de produtos
+- Sacola de compras
+- Login e área do cliente
+- Acompanhamento de pedidos
+- Atendimento via WhatsApp
+- Opções de retirada na loja e entrega por motoboy
+- Pagamento via Pix
+- Painel administrativo (`/admin`) para gestão da loja
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Tecnologias
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Front-end e back-end:** Next.js, React, TypeScript
+- **Banco de dados:** PostgreSQL
+- **ORM:** Prisma
+- **Infraestrutura:** Docker e Docker Compose
+- **Qualidade:** ESLint e GitHub Actions
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Como rodar o projeto
 
-## Learn More
+1. Clone o repositório:
+   ```bash
+   git clone https://github.com/eltonshadow/ecomerce-lobus-outlet.git
+   cd ecomerce-lobus-outlet
+   ```
+2. Copie o arquivo de variáveis de ambiente e preencha com seus dados:
+   ```bash
+   cp .env.example .env
+   ```
+3. Suba o banco de dados e a aplicação com Docker:
+   ```bash
+   docker compose up -d
+   ```
+   Ou, sem Docker:
+   ```bash
+   npm install
+   npx prisma migrate dev
+   npm run dev
+   ```
+4. Acesse `http://localhost:3000`
 
-To learn more about Next.js, take a look at the following resources:
+## Autor
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+**Elton Gomes Lima Filho**
+Estudante de Tecnologia da Informação (Estácio)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+[LinkedIn](https://www.linkedin.com/in/elton-gomes-432964440) · [GitHub](https://github.com/eltonshadow) · eltongomeslima@outlook.com
